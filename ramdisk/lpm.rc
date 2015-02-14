@@ -1,0 +1,24 @@
+on early-init
+    start ueventd
+
+on init
+   
+on early-fs
+	    
+on boot
+#	write /sys/class/sec/switch/usb_sel PDA
+
+# CPU Frequency Governor
+	write /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor interactive
+
+# EHCI runtime enable for LPA
+	write /sys/devices/platform/s5p-ehci/power/control auto
+
+	class_start default
+	
+	service ueventd /sbin/ueventd
+    	critical
+
+	service adbd /sbin/adbd		
+		
+	service battery_charger /charger
