@@ -20,14 +20,12 @@ PRODUCT_COPY_FILES += \
 	device/samsung/kyleve/ramdisk/init.bcm2166x.usb.rc:root/init.bcm2166x.usb.rc \
 	device/samsung/kyleve/ramdisk/init.log.rc:root/init.log.rc \
 	device/samsung/kyleve/ramdisk/lpm.rc:root/lpm.rc \
-	device/samsung/kyleve/ramdisk/ueventd.hawaii_ss_kyleve.rc:root/ueventd.hawaii_ss_kyleve.rc \
-	device/samsung/kyleve/ramdisk/recovery/init.recovery.hawaii_ss_kyleve.rc:root/init.recovery.hawaii_ss_kyleve.rc
-
+	device/samsung/kyleve/ramdisk/charger:root/charger \
+	device/samsung/kyleve/ramdisk/ueventd.hawaii_ss_kyleve.rc:root/ueventd.hawaii_ss_kyleve.rc
+	
 PRODUCT_COPY_FILES += \
 	device/samsung/kyleve/configs/media_profiles.xml:system/etc/media_profiles.xml \
 	device/samsung/kyleve/configs/audio_policy.conf:system/etc/audio_policy.conf \
-	device/samsung/kyleve/configs/tinyucm.conf:system/etc/tinyucm.conf \
-	device/samsung/kyleve/configs/default_gain.conf:system/etc/default_gain.conf \
 	device/samsung/kyleve/configs/media_codecs.xml:system/etc/media_codecs.xml 
 
 # Prebuilt kl keymaps
@@ -37,17 +35,15 @@ PRODUCT_COPY_FILES += \
 	device/samsung/kyleve/keylayouts/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
 	device/samsung/kyleve/keylayouts/samsung-keypad.kl:system/usr/keylayout/samsung-keypad.kl
 
-# Copy Apps
-#PRODUCT_COPY_FILES += \
-#        device/samsung/baffinlite/MultiSIM-Toggle.apk:system/app/MultiSIM-Toggle.apk
-
 # Insecure ADBD
-#ro.adb.secure=3
+# (ro.adb.secure=3)
 ADDITIONAL_DEFAULT_PROPERTIES += \
 	ro.adb.secure=0 \
-	ro.secure=0 \
-	persist.sys.root_access=3 \
 	persist.service.adb.enable=1
+
+# KSM
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.ksm.default=0	
 
 # Filesystem management tools
 PRODUCT_PACKAGES += \
@@ -67,21 +63,21 @@ PRODUCT_PACKAGES += \
 	audio.a2dp.default \
 	audio.usb.default \
 	audio.r_submix.default \
+	libaudio-resampler \
+	audio_policy.hawaii \
 	audio.primary.default
 
 # Device-specific packages
 PRODUCT_PACKAGES += \
 	SamsungServiceMode \
-
-# Charger
-PRODUCT_PACKAGES += \
-	charger \
-	charger_res_images
+	Torch
 
 # These are the hardware-specific features
 PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
 	frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
+	frameworks/native/data/etc/android.hardware.camera.front.xml:system/etc/permissions/android.hardware.camera.front.xml \
+	frameworks/native/data/etc/android.hardware.camera.flash-autofocus.xml:system/etc/permissions/android.hardware.camera.flash-autofocus.xml \
 	frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
 	frameworks/native/data/etc/android.hardware.location.xml:system/etc/permissions/android.hardware.location.xml \
 	frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml \
@@ -112,8 +108,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
     mobiledata.interfaces=rmnet0 \
     ro.telephony.ril_class=SamsungBCMRIL \
     ro.zygote.disable_gl_preload=true \
-	cm.updater.uri=get.ace3.tk \
-    persist.radio.multisim.config=none \
+    persist.radio.multisim.config=dsds \
+	cm.updater.uri=http://updates.cm-ota.pp.ua \
 	ro.telephony.call_ring.multiple=0 \
 	ro.telephony.call_ring=0
     
@@ -135,14 +131,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
     persist.sys.usb.config=mtp
 	
-# Override phone-hdpi-512-dalvik-heap to match value on stock
-# - helps pass CTS com.squareup.okhttp.internal.spdy.Spdy3Test#tooLargeDataFrame)
-# (property override must come before included property)
-PRODUCT_PROPERTY_OVERRIDES += \
-	dalvik.vm.heapgrowthlimit=56m	
-
 # Dalvik heap config
-include frameworks/native/build/phone-hdpi-512-dalvik-heap.mk
+include frameworks/native/build/phone-xhdpi-1024-dalvik-heap.mk
+include frameworks/native/build/phone-xxhdpi-2048-hwui-memory.mk
 
 # we have enough storage space to hold precise GC data
 PRODUCT_TAGS += dalvik.gc.type-precise
