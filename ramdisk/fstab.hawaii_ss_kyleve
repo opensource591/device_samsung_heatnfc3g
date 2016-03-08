@@ -10,9 +10,10 @@
 /dev/block/platform/sdhci.1/by-name/KERNEL     /boot             emmc    defaults                                					 defaults
 /dev/block/platform/sdhci.1/by-name/RECOVERY   /recovery         emmc    defaults                                					 defaults
 /dev/block/platform/sdhci.1/by-name/modem	   /modem 		     emmc 	 defaults 					                                 defaults
-#/dev/block/platform/sdhci.1/by-name/HIDDEN    /preload 	     ext4 	 defaults 					                                 recoveryonly
 
 # vold-managed volumes ("block device" is actually a sysfs devpath)
-/devices/platform/sdhci.0/mmc_host/mmc2       auto  			auto     defaults                                                    voldmanaged=sdcard1:auto,noemulatedsd
-/devices/platform/sdhci.0/mmc_host/mmc2       auto  			auto     defaults                                                    voldmanaged=sdcard2:auto,noemulatedsd
-#/devices/platform/dwc_otg/usb1 	  		  auto              auto     defaults                                                    voldmanaged=usbdisk:auto
+/devices/platform/sdhci.0/mmc_host/mmc2*       auto  			auto     defaults                                                    voldmanaged=sdcard1:auto,noemulatedsd
+/devices/platform/sdhci.0/mmc_host/mmc2*       auto  			auto     defaults                                                    voldmanaged=sdcard2:auto,noemulatedsd
+
+# ZRam
+/dev/block/zram0                               none             swap     defaults                                                    zramsize=52428800

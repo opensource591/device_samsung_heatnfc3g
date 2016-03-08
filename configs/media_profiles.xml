@@ -89,11 +89,11 @@
     <!-- Each camcorder profile defines a set of predefined configuration parameters -->
     <CamcorderProfiles cameraId="0" startOffsetMs="850">
 
-        <EncoderProfile quality="high" fileFormat="mp4" duration="60">
+        <EncoderProfile quality="high" fileFormat="mp4" duration="30">
             <Video codec="h264"
-                   bitRate="2560000"
-                   width="640"
-                   height="480"
+                   bitRate="9000000"
+                   width="1280"
+                   height="720"
                    frameRate="30" />
 
             <Audio codec="aac"
@@ -167,7 +167,33 @@
                    channels="1" />
         </EncoderProfile>
 
-        <EncoderProfile quality="m4v_vga" fileFormat="3gp" duration="30">
+	<EncoderProfile quality="720p" fileFormat="mp4" duration="30">
+            <Video codec="h264"
+                   bitRate="9000000"
+                   width="1280"
+                   height="720"
+                   frameRate="30" />
+            <Audio codec="aac"
+                   bitRate="96000"
+                   sampleRate="48000"
+                   channels="1" />
+        </EncoderProfile>
+		
+<!-- Unsupported profiles(quality) in CM11 sources (frameworks/av)		
+
+		<EncoderProfile quality="m4v_720p" fileFormat="mp4" duration="30">
+            <Video codec="m4v"
+                   bitRate="4000000"
+                   width="1280"
+                   height="720"
+                   frameRate="30" />
+            <Audio codec="aac"
+                   bitRate="96000"
+                   sampleRate="48000"
+                   channels="1" />
+        </EncoderProfile>
+
+		<EncoderProfile quality="m4v_vga" fileFormat="3gp" duration="30">
             <Video codec="m4v"
                    bitRate="2560000"
                    width="640"
@@ -203,6 +229,7 @@
                    channels="1" />
         </EncoderProfile>
 
+-->
         <!-- Added to pass the CTS camcorder Test -->
         <EncoderProfile quality="timelapseqcif" fileFormat="3gp" duration="30">
             <Video codec="m4v"
@@ -230,12 +257,12 @@
                    channels="1" />
         </EncoderProfile>
 
-        <EncoderProfile quality="timelapsehigh" fileFormat="mp4" duration="60">
+        <EncoderProfile quality="timelapsehigh" fileFormat="mp4" duration="30">
             <Video codec="h264"
-                   bitRate="2560000"
-                   width="640"
-                   height="480"
-                   frameRate="25" />
+                   bitRate="9000000"
+                   width="1280"
+                   height="720"
+                   frameRate="30" />
             <!-- audio setting is ignored -->
             <Audio codec="aac"
                    bitRate="96000"
@@ -255,20 +282,20 @@
                    sampleRate="48000"
                    channels="1" />
         </EncoderProfile>
-		<!--
+
 		<EncoderProfile quality="timelapse720p" fileFormat="mp4" duration="30">
             <Video codec="h264"
-                   bitRate="8000000"
+                   bitRate="9000000"
                    width="1280"
                    height="720"
                    frameRate="30" />
-            
+            <!-- audio setting is ignored -->
             <Audio codec="aac"
                    bitRate="96000"
                    sampleRate="48000"
                    channels="1" />
         </EncoderProfile>
-		-->		
+
         <ImageEncoding quality="90" />
         <ImageEncoding quality="80" />
         <ImageEncoding quality="70" />
@@ -283,7 +310,7 @@
                    bitRate="2560000"
                    width="640"
                    height="480"
-                   frameRate="25" />
+                   frameRate="30" />
 
             <Audio codec="aac"
                    bitRate="96000"
@@ -334,7 +361,7 @@
                    bitRate="2560000"
                    width="640"
                    height="480"
-                   frameRate="25" />
+                   frameRate="30" />
 
             <Audio codec="aac"
                    bitRate="96000"
@@ -368,7 +395,7 @@
                    sampleRate="8000"
                    channels="1" />
         </EncoderProfile>
-
+        
         <EncoderProfile quality="timelapselow" fileFormat="3gp" duration="30">
             <Video codec="m4v"
                    bitRate="192000"
@@ -387,7 +414,7 @@
                    bitRate="2560000"
                    width="640"
                    height="480"
-                   frameRate="25" />
+                   frameRate="30" />
             <!-- audio setting is ignored -->
             <Audio codec="aac"
                    bitRate="96000"
@@ -400,7 +427,7 @@
                    bitRate="2560000"
                    width="640"
                    height="480"
-                   frameRate="25" />
+                   frameRate="30" />
 
             <Audio codec="aac"
                    bitRate="96000"
@@ -423,25 +450,25 @@
          or query the capabilities of the codec at all if it is disabled
     -->
     <VideoEncoderCap name="h264" enabled="true"
-        minBitRate="64000" maxBitRate="3000000"
+        minBitRate="64000" maxBitRate="30000000"
         minFrameWidth="176" maxFrameWidth="1280"
         minFrameHeight="144" maxFrameHeight="720"
-        minFrameRate="1" maxFrameRate="30" />
+        minFrameRate="5" maxFrameRate="30" />
 
     <VideoEncoderCap name="h263" enabled="true"
         minBitRate="64000" maxBitRate="3000000"
         minFrameWidth="176" maxFrameWidth="640"
         minFrameHeight="144" maxFrameHeight="480"
-        minFrameRate="1" maxFrameRate="30" />
+        minFrameRate="5" maxFrameRate="30" />
 
     <VideoEncoderCap name="m4v" enabled="true"
         minBitRate="64000" maxBitRate="8000000"
         minFrameWidth="176" maxFrameWidth="1280"
         minFrameHeight="144" maxFrameHeight="720"
-        minFrameRate="1" maxFrameRate="30" />
+        minFrameRate="5" maxFrameRate="30" />
 
     <AudioEncoderCap name="aac" enabled="true"
-        minBitRate="8192" maxBitRate="196000"
+        minBitRate="8192" maxBitRate="96000"
         minSampleRate="8000" maxSampleRate="48000"
         minChannels="1" maxChannels="2" />
 
@@ -462,8 +489,8 @@
         for TEST applications. For other applications, we do
         not perform any checks at all.
     -->
-    <VideoDecoderCap name="wmv" enabled="true"/>
-    <AudioDecoderCap name="wma" enabled="true"/>
+    <VideoDecoderCap name="wmv" enabled="false"/>
+    <AudioDecoderCap name="wma" enabled="false"/>
     
     <!--
         The VideoEditor Capability configuration:
