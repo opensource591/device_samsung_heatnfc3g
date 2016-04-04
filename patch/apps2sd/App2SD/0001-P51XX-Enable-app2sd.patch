@@ -1,0 +1,52 @@
+From 1f847d32a4273cb4246874f23baaca2afe15bd6b Mon Sep 17 00:00:00 2001
+From: andi34 <skate4life@gmx.de>
+Date: Wed, 28 May 2014 14:29:36 +0200
+Subject: [PATCH] P51XX: Enable app moving support
+
+Change-Id: I030b08c95669cf65a58b72c0935beba49fb2ad1f
+---
+ BoardConfigCommon.mk                               |    3 +++
+ .../base/core/res/res/xml/storage_list.xml         |    7 +++----
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/BoardConfigCommon.mk b/BoardConfigCommon.mk
+index 6528cac..2119eed 100644
+--- a/BoardConfigCommon.mk
++++ b/BoardConfigCommon.mk
+@@ -44,6 +44,9 @@ BOARD_SYSTEMIMAGE_PARTITION_SIZE := 1073741824
+ BOARD_USERDATAIMAGE_PARTITION_SIZE := 2147483648
+ BOARD_FLASH_BLOCK_SIZE := 4096
+ 
++# External apps on SD
++TARGET_EXTERNAL_APPS = sdcard1
++
+ # Egl
+ BOARD_EGL_CFG := device/samsung/p5100/configs/egl.cfg
+ USE_OPENGL_RENDERER := true
+diff --git a/common-overlay/frameworks/base/core/res/res/xml/storage_list.xml b/common-overlay/frameworks/base/core/res/res/xml/storage_list.xml
+index b96131a..4368101 100644
+--- a/common-overlay/frameworks/base/core/res/res/xml/storage_list.xml
++++ b/common-overlay/frameworks/base/core/res/res/xml/storage_list.xml
+@@ -34,16 +34,15 @@
+ 
+ <StorageList xmlns:android="http://schemas.android.com/apk/res/android">
+     <!-- internal emulated storage -->
+-    <storage
+-             android:storageDescription="@string/storage_internal"
++    <storage android:storageDescription="@string/storage_internal"
+              android:emulated="true"
+-             android:primary="true"
+              android:mtpReserve="100" />
+ 
+     <storage android:mountPoint="/storage/sdcard1"
+              android:storageDescription="@string/storage_sd_card"
+              android:primary="false"
+-             android:removable="true" />
++             android:removable="true" 
++             android:externalApps="true" />
+ 
+     <storage android:mountPoint="/storage/usbdisk0"
+              android:storageDescription="@string/storage_usb"
+-- 
+1.7.9.5
+
