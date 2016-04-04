@@ -89,19 +89,6 @@
     <!-- Each camcorder profile defines a set of predefined configuration parameters -->
     <CamcorderProfiles cameraId="0" startOffsetMs="850">
 
-        <EncoderProfile quality="high" fileFormat="mp4" duration="30">
-            <Video codec="h264"
-                   bitRate="9000000"
-                   width="1280"
-                   height="720"
-                   frameRate="30" />
-
-            <Audio codec="aac"
-                   bitRate="96000"
-                   sampleRate="48000"
-                   channels="1" />
-        </EncoderProfile>
-
         <EncoderProfile quality="low" fileFormat="3gp" duration="30">
             <Video codec="m4v"
                    bitRate="192000"
@@ -167,69 +154,6 @@
                    channels="1" />
         </EncoderProfile>
 
-	<EncoderProfile quality="720p" fileFormat="mp4" duration="30">
-            <Video codec="h264"
-                   bitRate="9000000"
-                   width="1280"
-                   height="720"
-                   frameRate="30" />
-            <Audio codec="aac"
-                   bitRate="96000"
-                   sampleRate="48000"
-                   channels="1" />
-        </EncoderProfile>
-		
-<!-- Unsupported profiles(quality) in CM11 sources (frameworks/av)		
-
-		<EncoderProfile quality="m4v_720p" fileFormat="mp4" duration="30">
-            <Video codec="m4v"
-                   bitRate="4000000"
-                   width="1280"
-                   height="720"
-                   frameRate="30" />
-            <Audio codec="aac"
-                   bitRate="96000"
-                   sampleRate="48000"
-                   channels="1" />
-        </EncoderProfile>
-
-		<EncoderProfile quality="m4v_vga" fileFormat="3gp" duration="30">
-            <Video codec="m4v"
-                   bitRate="2560000"
-                   width="640"
-                   height="480"
-                   frameRate="30" />
-            <Audio codec="amrnb"
-                   bitRate="12200"
-                   sampleRate="8000"
-                   channels="1" />
-        </EncoderProfile>
-
-		<EncoderProfile quality="h263_cif" fileFormat="3gp" duration="30">
-            <Video codec="h263"
-                   bitRate="1280000"
-                   width="352"
-                   height="288"
-                   frameRate="30" />
-            <Audio codec="aac"
-                   bitRate="96000"
-                   sampleRate="16000"
-                   channels="1" />
-        </EncoderProfile>
-
-		<EncoderProfile quality="h263_4cif" fileFormat="3gp" duration="30">
-            <Video codec="h263"
-                   bitRate="2000000"
-                   width="640"
-                   height="480"
-                   frameRate="30" />
-            <Audio codec="aac"
-                   bitRate="96000"
-                   sampleRate="16000"
-                   channels="1" />
-        </EncoderProfile>
-
--->
         <!-- Added to pass the CTS camcorder Test -->
         <EncoderProfile quality="timelapseqcif" fileFormat="3gp" duration="30">
             <Video codec="m4v"
@@ -257,19 +181,6 @@
                    channels="1" />
         </EncoderProfile>
 
-        <EncoderProfile quality="timelapsehigh" fileFormat="mp4" duration="30">
-            <Video codec="h264"
-                   bitRate="9000000"
-                   width="1280"
-                   height="720"
-                   frameRate="30" />
-            <!-- audio setting is ignored -->
-            <Audio codec="aac"
-                   bitRate="96000"
-                   sampleRate="48000"
-                   channels="1" />
-        </EncoderProfile>
-
         <EncoderProfile quality="timelapse480p" fileFormat="mp4" duration="60">
             <Video codec="h264"
                    bitRate="2560000"
@@ -277,19 +188,6 @@
                    height="480"
                    frameRate="25" />
 
-            <Audio codec="aac"
-                   bitRate="96000"
-                   sampleRate="48000"
-                   channels="1" />
-        </EncoderProfile>
-
-		<EncoderProfile quality="timelapse720p" fileFormat="mp4" duration="30">
-            <Video codec="h264"
-                   bitRate="9000000"
-                   width="1280"
-                   height="720"
-                   frameRate="30" />
-            <!-- audio setting is ignored -->
             <Audio codec="aac"
                    bitRate="96000"
                    sampleRate="48000"
@@ -353,19 +251,6 @@
             <Audio codec="aac"
                    bitRate="96000"
                    sampleRate="16000"
-                   channels="1" />
-        </EncoderProfile>
-
-        <EncoderProfile quality="480p" fileFormat="mp4" duration="60">
-            <Video codec="h264"
-                   bitRate="2560000"
-                   width="640"
-                   height="480"
-                   frameRate="30" />
-
-            <Audio codec="aac"
-                   bitRate="96000"
-                   sampleRate="48000"
                    channels="1" />
         </EncoderProfile>
 
@@ -449,22 +334,16 @@
          In other words, the applications won't be able to use the codec
          or query the capabilities of the codec at all if it is disabled
     -->
-    <VideoEncoderCap name="h264" enabled="true"
+    <!--  <VideoEncoderCap name="h264" enabled="true"
         minBitRate="64000" maxBitRate="30000000"
         minFrameWidth="176" maxFrameWidth="1280"
         minFrameHeight="144" maxFrameHeight="720"
-        minFrameRate="5" maxFrameRate="30" />
+        minFrameRate="5" maxFrameRate="30" /> -->
 
     <VideoEncoderCap name="h263" enabled="true"
         minBitRate="64000" maxBitRate="3000000"
         minFrameWidth="176" maxFrameWidth="640"
         minFrameHeight="144" maxFrameHeight="480"
-        minFrameRate="5" maxFrameRate="30" />
-
-    <VideoEncoderCap name="m4v" enabled="true"
-        minBitRate="64000" maxBitRate="8000000"
-        minFrameWidth="176" maxFrameWidth="1280"
-        minFrameHeight="144" maxFrameHeight="720"
         minFrameRate="5" maxFrameRate="30" />
 
     <AudioEncoderCap name="aac" enabled="true"

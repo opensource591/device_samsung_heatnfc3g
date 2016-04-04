@@ -20,8 +20,12 @@
     <bool name="config_show_expandedDesktop">true</bool>
     <bool name="has_led_flash">true</bool>
     <bool name="config_show_volumeRockerWake">true</bool>
-<!-- This is used to determine whether to hide the
-         preferred application install location settings-->
-    <bool name="config_hide_app_install_location" translatable="false">false</bool>
-
+<!-- App moving -->
+    <string name="app_moving_enable">Enable apps to SD</string>
+    <string name="app_moving_disable">Disable apps to sd</string>
+    <string name="app_moving_reboot_title">Reboot now?</string>
+    <string name="app_moving_reboot_enabled_desc">Successfully enabled Enable apps to SD.\n\nThe device needs to be rebooted for the setting to take effect.</string>
+    <string name="app_moving_reboot_disabled_desc">Successfully Disabled apps to sd.\n\nThe device needs to be rebooted for the setting to take effect.</string>
+    <string name="app_moving_reboot_now_button">Reboot now</string>
+    <string name="app_moving_reboot_later_button">Reboot later</string>
 </resources>

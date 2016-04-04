@@ -17,7 +17,7 @@ TARGET_BOOTLOADER_BOARD_NAME := hawaii
 
 # Assert
 TARGET_OTA_ASSERT_DEVICE := kyleve,S7392,GT-S7392,hawaii
-
+TARGET_EXTERNAL_APPS = sdcard1
 # Kernel
 BOARD_KERNEL_CMDLINE :=
 BOARD_KERNEL_BASE := 0x82000000
@@ -64,6 +64,14 @@ BOARD_HAVE_SAMSUNG_WIFI     := true
 TARGET_SCREEN_HEIGHT := 800
 TARGET_SCREEN_WIDTH := 480
 
+# Enable dex-preoptimization to speed up the first boot sequence
+# of an SDK AVD. Note that this operation only works on Linux for now
+ifeq ($(HOST_OS),linux)
+  ifeq ($(WITH_DEXPREOPT),)
+    WITH_DEXPREOPT := true
+  endif
+endif
+
 # Hardware rendering
 USE_OPENGL_RENDERER := true
 BOARD_EGL_CFG := device/samsung/kyleve/configs/egl.cfg
@@ -108,7 +116,13 @@ TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/android0/f_mass_stora
 BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_HAS_LARGE_FILESYSTEM := true
 TARGET_USERIMAGES_USE_EXT4 := true
-TARGET_RECOVERY_PIXEL_FORMAT := BGRA_8888
+TARGET_RECOVERY_PIXEL_FORMAT                := BGRA_8888
+BOARD_HAS_NO_MISC_PARTITION                 := true
+BOARD_RECOVERY_HANDLES_MOUNT                := true
+BOARD_USES_MMCUTILS                         := true
+BOARD_USE_USB_MASS_STORAGE_SWITCH           := true
+BOARD_SUPPRESS_EMMC_WIPE                    := true
+TARGET_RECOVERY_DENSITY                     := hdpi
 
 # CMHW
 BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/ device/samsung/kyleve/cmhw/
