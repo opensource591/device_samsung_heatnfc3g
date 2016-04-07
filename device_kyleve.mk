@@ -109,7 +109,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
     ro.telephony.ril_class=SamsungBCMRIL \
     ro.zygote.disable_gl_preload=true \
     persist.radio.multisim.config=dsds \
-#	cm.updater.uri=http://updates.cm-ota.pp.ua \
+	ro.build.ota.url=http://androidlover5842ota.hostracon.com/ \
 	ro.telephony.call_ring.multiple=0 \
 	ro.telephony.call_ring=0
     
@@ -118,6 +118,30 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.com.google.locationfeatures=1 \
     ro.com.google.networklocation=1
+
+# Extended JNI checks:
+# The extended JNI checks will cause the system to run more slowly, but they can spot a variety of nasty bugs 
+# before they have a chance to cause problems.
+# Default=true for development builds, set by android buildsystem
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.kernel.android.checkjni=0 \
+    ro.kernel.checkjni=0 \
+    dalvik.vm.checkjni=false \
+    ro.config.low_ram=true \
+    dalvik.vm.jit.codecachesize=0 \
+    persist.sys.purgeable_assets=1 
+
+# Reduce background apps limit to 7 on low-tier devices
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.sys.fw.bg_apps_limit=7
+
+# Set max background services
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.config.max_starting_bg=6
+
+# Disable bytecode verify to decrease systemload
+PRODUCT_PROPERTY_OVERRIDES += \
+    dalvik.vm.verify-bytecode=false
 
 # Extended JNI checks
 # The extended JNI checks will cause the system to run more slowly, but they can spot a variety of nasty bugs 

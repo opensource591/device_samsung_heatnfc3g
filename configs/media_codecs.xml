@@ -77,18 +77,18 @@ Only the three quirks included above are recognized at this point:
 
 <MediaCodecs>
     <Decoders>
-        <MediaCodec name="OMX.brcm.video.mpeg4.hw.decoder" type="video/mp4v-es" />
+        <MediaCodec name="OMX.brcm.video.mpeg4.decoder" type="video/mp4v-es" />
 	<MediaCodec name="OMX.brcm.video.vc1.hw.decoder" type="video/asf" />
 	<MediaCodec name="OMX.brcm.video.vc1.hw.decoder" type="video/wvc1" />
 	<MediaCodec name="OMX.brcm.video.vc1.hw.decoder" type="video/x-ms-wmv" />
 	<MediaCodec name="OMX.brcm.video.vc1.hw.decoder" type="video/wmv1" />
 	<MediaCodec name="OMX.brcm.video.vc1.hw.decoder" type="video/wmv3" />
         <MediaCodec name="OMX.brcm.video.mpeg4.decoder" type="video/mp4v-es" />
-        <MediaCodec name="OMX.brcm.video.h263.decoder" type="video/3gpp" />
-	<MediaCodec name="OMX.brcm.video.h264.hw.decoder" type="video/avc" />
+        <!--<MediaCodec name="OMX.brcm.video.h263.decoder" type="video/3gpp" />-->
+	<!--<MediaCodec name="OMX.brcm.video.h264.hw.decoder" type="video/avc" />-->
+       <MediaCodec name="OMX.google.vp9.decoder" type="video/x-vnd.on2.vp9"/>
 	<MediaCodec name="OMX.brcm.video.h264.decoder" type="video/avc"/>
 	<!-- <MediaCodec name="OMX.brcm.video.vpx.decoder" type="video/x-vnd.on2.vp8" /> -->
-       <MediaCodec name="OMX.google.vp9.decoder" type="video/x-vnd.on2.vp9"/>
 
         <!-- Video Software -->
         <MediaCodec name="OMX.SEC.wmv7.dec" type="video/x-ms-wmv7" />
@@ -112,20 +112,19 @@ Only the three quirks included above are recognized at this point:
         <MediaCodec name="OMX.brcm.audio.mp3.decoder" type="audio/mpeg" />
         <MediaCodec name="OMX.brcm.audio.amrnb.decoder" type="audio/3gpp" />
         <MediaCodec name="OMX.brcm.audio.amrwb.decoder" type="audio/amr-wb" />
-
-        <MediaCodec name="OMX.google.mp3.decoder" type="audio/mpeg" />
-        <MediaCodec name="OMX.google.amrnb.decoder" type="audio/3gpp" />
-        <MediaCodec name="OMX.google.amrwb.decoder" type="audio/amr-wb" />
+       <!--<MediaCodec name="OMX.google.mp3.decoder" type="audio/mpeg" />-->
+        <!--<MediaCodec name="OMX.google.amrnb.decoder" type="audio/3gpp" />-->
+       <!-- <MediaCodec name="OMX.google.amrwb.decoder" type="audio/amr-wb" />-->
         <MediaCodec name="OMX.google.aac.decoder" type="audio/mp4a-latm" />
-
         <MediaCodec name="OMX.google.g711.alaw.decoder" type="audio/g711-alaw" />
         <MediaCodec name="OMX.google.g711.mlaw.decoder" type="audio/g711-mlaw" />
         <MediaCodec name="OMX.google.vorbis.decoder" type="audio/vorbis" />
-    
-	<MediaCodec name="OMX.google.mpeg4.decoder" type="video/mp4v-es" />
+        <MediaCodec name="OMX.google.gsm.decoder" type="audio/gsm" />
+        <MediaCodec name="OMX.google.mpeg4.decoder" type="video/mp4v-es" />
         <MediaCodec name="OMX.google.h263.decoder" type="video/3gpp" />
         <MediaCodec name="OMX.google.h264.decoder" type="video/avc" />
-        <MediaCodec name="OMX.google.vpx.decoder" type="video/x-vnd.on2.vp8" />
+        <MediaCodec name="OMX.google.vp8.decoder" type="video/x-vnd.on2.vp8" />
+        <MediaCodec name="OMX.google.vp9.decoder" type="video/x-vnd.on2.vp9" />
     </Decoders>
 
     <Encoders>
@@ -133,9 +132,9 @@ Only the three quirks included above are recognized at this point:
         <MediaCodec name="OMX.brcm.video.h263.encoder" type="video/3gpp" />
         <MediaCodec name="OMX.brcm.video.h264.encoder" type="video/avc" />
 
-	<MediaCodec name="OMX.brcm.audio.amrnb.encoder" type="audio/3gpp" />
-        <MediaCodec name="OMX.brcm.audio.amrwb.encoder" type="audio/amr-wb" />
-        <MediaCodec name="OMX.brcm.audio.aac.encoder" type="audio/mp4a-latm" />
+	<!--<MediaCodec name="OMX.brcm.audio.amrnb.encoder" type="audio/3gpp" />-->
+        <!--<MediaCodec name="OMX.brcm.audio.amrwb.encoder" type="audio/amr-wb" />-->
+        <!--<MediaCodec name="OMX.brcm.audio.aac.encoder" type="audio/mp4a-latm" />-->
 
         <MediaCodec name="OMX.google.amrnb.encoder" type="audio/3gpp" />
         <MediaCodec name="OMX.google.amrwb.encoder" type="audio/amr-wb" />
