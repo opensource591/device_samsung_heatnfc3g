@@ -1046,10 +1046,10 @@ Date:   Thu Apr 21 21:12:51 2016 +0530
     
     Change-Id: I4e6f18809bc0c8a749c12bcce7de9cb985dc4792
 
-diff --git a/media/libstagefright/colorconversion/ColorConverter.cpp b/media/libstagefright/colorconversion/ColorConverter.cpp
+diff --git a/frameworks/av/media/libstagefright/colorconversion/ColorConverter.cpp b/frameworks/av/media/libstagefright/colorconversion/ColorConverter.cpp
 index 1577cda..597167f 100644
---- a/media/libstagefright/colorconversion/ColorConverter.cpp
-+++ b/media/libstagefright/colorconversion/ColorConverter.cpp
+--- a/frameworks/av/media/libstagefright/colorconversion/ColorConverter.cpp
++++ b/frameworks/av/media/libstagefright/colorconversion/ColorConverter.cpp
 @@ -22,10 +22,6 @@
  #include <media/stagefright/ColorConverter.h>
  #include <media/stagefright/MediaErrors.h>
@@ -1846,10 +1846,10 @@ index 4196b2f..f09b126 100644
          SLOGE("Failed to remount secure area (%s)", strerror(errno));
          goto out_nomedia;
      }
-diff --git a/system/vold/Volume.h b/Volume.h
+diff --git a/system/vold/Volume.h b/system/vold/Volume.h
 index c1be400..a0b6d50 100644
---- a/Volume.h
-+++ b/Volume.h
+--- a/system/vold/Volume.h
++++ b/system/vold/Volume.h
 @@ -79,6 +79,7 @@ public:
      const char* getLabel() { return mLabel; }
      const char* getUuid() { return mUuid; }
@@ -1890,8 +1890,8 @@ index 162159e..4e318b8 100644
  extern "C" {
 diff --git a/system/vold/main.cpp b/system/vold/main.cpp
 index 22bae40..5197b35 100644
---- a/main.cpp
-+++ b/main.cpp
+--- a/system/vold/main.cpp
++++ b/system/vold/main.cpp
 @@ -36,6 +36,10 @@
  #include "DirectVolume.h"
  #include "cryptfs.h"
