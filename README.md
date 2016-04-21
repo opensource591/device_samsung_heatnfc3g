@@ -31,6 +31,8 @@ Device tree for Galaxy Trend Duos GT-S7392 (2 SIM)
 
 `patch_fix`  // TO MAKE ROM STABLE
 
+`apps2sd` // If you want apps2sd feature
+
 `kyleve `
 
 <b>FLASH THE ROM AND ENJOY!</b>

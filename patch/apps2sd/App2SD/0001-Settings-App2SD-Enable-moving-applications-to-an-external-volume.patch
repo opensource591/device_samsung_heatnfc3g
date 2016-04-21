@@ -1,0 +1,59 @@
+From 4e5c7aa4ba9aeb230a86982c27c57bd8fb3cadea Mon Sep 17 00:00:00 2001
+From: Xiao-Long Chen <chenxiaolong@cxl.epac.to>
+Date: Mon, 18 Aug 2014 02:37:18 +0200
+Subject: [PATCH] Settings: App 2SD Enable moving applications to an external
+ volume
+
+Change-Id: Ia19c70360458f07d59d0d29fece2fa356d35b483
+---
+ .../settings/applications/InstalledAppDetails.java |    6 +++---
+ .../settings/deviceinfo/StorageMeasurement.java    |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/src/com/android/settings/applications/InstalledAppDetails.java b/src/com/android/settings/applications/InstalledAppDetails.java
+index a862d42..7f4990a 100644
+--- a/src/com/android/settings/applications/InstalledAppDetails.java
++++ b/src/com/android/settings/applications/InstalledAppDetails.java
+@@ -312,7 +312,7 @@ public class InstalledAppDetails extends Fragment
+     }
+ 
+     private void initMoveButton() {
+-        if (Environment.isExternalStorageEmulated()) {
++        if (!Environment.isExternalAppsAvailableAndMounted()) {
+             mMoveAppButton.setVisibility(View.INVISIBLE);
+             return;
+         }
+@@ -536,7 +536,7 @@ public class InstalledAppDetails extends Fragment
+         mExternalCodeSize = (TextView)view.findViewById(R.id.external_code_size_text);
+         mExternalDataSize = (TextView)view.findViewById(R.id.external_data_size_text);
+ 
+-        if (Environment.isExternalStorageEmulated()) {
++        if (!Environment.isExternalAppsAvailableAndMounted()) {
+             ((View)mExternalCodeSize.getParent()).setVisibility(View.GONE);
+             ((View)mExternalDataSize.getParent()).setVisibility(View.GONE);
+         }
+@@ -1097,7 +1097,7 @@ public class InstalledAppDetails extends Fragment
+             mHaveSizes = true;
+             long codeSize = mAppEntry.codeSize;
+             long dataSize = mAppEntry.dataSize;
+-            if (Environment.isExternalStorageEmulated()) {
++            if (!Environment.isExternalAppsAvailableAndMounted()) {
+                 codeSize += mAppEntry.externalCodeSize;
+                 dataSize +=  mAppEntry.externalDataSize;
+             } else {
+diff --git a/src/com/android/settings/deviceinfo/StorageMeasurement.java b/src/com/android/settings/deviceinfo/StorageMeasurement.java
+index 34ef62b..e1dd3bb 100644
+--- a/src/com/android/settings/deviceinfo/StorageMeasurement.java
++++ b/src/com/android/settings/deviceinfo/StorageMeasurement.java
+@@ -249,7 +249,7 @@ public class StorageMeasurement {
+                 long codeSize = stats.codeSize;
+                 long dataSize = stats.dataSize;
+                 long cacheSize = stats.cacheSize;
+-                if (Environment.isExternalStorageEmulated()) {
++                if (!Environment.isExternalAppsAvailableAndMounted()) {
+                     // Include emulated storage when measuring internal. OBB is
+                     // shared on emulated storage, so treat as code.
+                     codeSize += stats.externalCodeSize + stats.externalObbSize;
+-- 
+1.7.9.5
+

@@ -1039,17 +1039,17 @@ diff -ur CM11_loganxx/packages/services/Telephony/src/com/android/phone/CallFeat
  
 
 commit aa496769fa9d4e49bbce4f7d275f896d817b1a96
-Author: The Prezident <theprezident1@gmail.com>
+Author: Grace5921 <androidlover5842@gmail.com>
 Date:   Thu Apr 21 21:12:51 2016 +0530
 
     patch to fix video play back in browser
     
     Change-Id: I4e6f18809bc0c8a749c12bcce7de9cb985dc4792
 
-diff --git a/media/libstagefright/colorconversion/ColorConverter.cpp b/media/libstagefright/colorconversion/ColorConverter.cpp
+diff --git a/frameworks/av/media/libstagefright/colorconversion/ColorConverter.cpp b/frameworks/av/media/libstagefright/colorconversion/ColorConverter.cpp
 index 1577cda..597167f 100644
---- a/media/libstagefright/colorconversion/ColorConverter.cpp
-+++ b/media/libstagefright/colorconversion/ColorConverter.cpp
+--- a/frameworks/av/media/libstagefright/colorconversion/ColorConverter.cpp
++++ b/frameworks/av/media/libstagefright/colorconversion/ColorConverter.cpp
 @@ -22,10 +22,6 @@
  #include <media/stagefright/ColorConverter.h>
  #include <media/stagefright/MediaErrors.h>

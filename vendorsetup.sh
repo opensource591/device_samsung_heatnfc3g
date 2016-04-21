@@ -72,3 +72,17 @@ find=`find . -type f -name "*.*~"`
 rm $find
 cd ../../../
 }
+
+function apps2sd
+{
+pwd > tmp
+path=`cat tmp`
+rm tmp
+cd device/samsung/kyleve/patch/apps2sd
+cp App2SD.sh ../../../../../../App2SD.sh
+cp App2SD ../../../../../App2SD 
+cd ../../../../../
+cd ..
+./App2SD.sh
+cd $path
+}
