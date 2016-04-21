@@ -11,7 +11,7 @@ function kyleve
 function patch_fix
 {
 echo "patching cm-11.0 sources"
-time patch -p1 <device/samsung/kyleve/patches/patch.diff
+time patch -p1 <device/samsung/kyleve/patch/patch.diff
 echo "done"
 }
 
