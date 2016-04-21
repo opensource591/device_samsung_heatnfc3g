@@ -16,7 +16,7 @@ Device tree for Galaxy Trend Duos GT-S7392 (2 SIM)
 <b>PASTE THIS INSIDE THAT FILE :- </b>
 
 
-```
+```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
 <project path="device/samsung/kyleve" name="SiniTurk/android_device_kyleve" revision="cm-11.0" />
