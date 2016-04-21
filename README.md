@@ -29,7 +29,7 @@ Device tree for Galaxy Trend Duos GT-S7392 (2 SIM)
 
 `. build/envsetup.sh `
 
-`patch_fix`  // TO FIX MAKE ROM STABLE
+`patch_fix`  // TO MAKE ROM STABLE
 
 `kyleve `
 
