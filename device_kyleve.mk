@@ -69,7 +69,8 @@ PRODUCT_PACKAGES += \
 
 # Device-specific packages
 PRODUCT_PACKAGES += \
-	SamsungServiceMode \
+	FmRadio \
+	SamsungServiceMode 
 #	Torch
 
 # These are the hardware-specific features
