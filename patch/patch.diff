@@ -1119,3 +1119,799 @@ index 1577cda..597167f 100644
          default:
          {
              CHECK(!"Should not be here. Unknown color conversion.");
+
+
+project frameworks/base/
+diff --git a/frameworks/base/core/java/android/os/Environment.java b/frameworks/base/core/java/android/os/Environment.java
+index a3350da..a4e5fe0 100644
+--- a/frameworks/base/core/java/android/os/Environment.java
++++ b/frameworks/base/core/java/android/os/Environment.java
+@@ -278,6 +278,83 @@ public class Environment {
+     }
+ 
+     /**
++     * Gets an external volume that supports having external apps.
++     * If such a volume does not exist (eg. devices that do not have an SD card
++     * and do not support USB-OTG), then null is returned.
++     * @return StorageVolume object representing a volume supporting external apps.
++     * @hide
++     */
++    private static StorageVolume getExternalAppsVolume() {
++        try {
++            IMountService mountService = IMountService.Stub.asInterface(ServiceManager
++                    .getService("mount"));
++            final StorageVolume[] volumes = mountService.getVolumeList();
++            for (StorageVolume volume : volumes) {
++                if (volume.isExternalApps()) {
++                    Log.v(TAG, "Found external apps volume: " + volume.getPath());
++                    return volume;
++                }
++            }
++        } catch (Exception e) {
++            Log.e(TAG, "couldn't talk to MountService", e);
++        }
++        return null;
++    }
++
++    /**
++     * Determine if there is a volume supporting external apps and if it's mounted.
++     * @return True if an external apps volume exists and is mounted, otherwise, false.
++     * @hide
++     */
++    public static boolean isExternalAppsAvailableAndMounted() {
++        if (getExternalAppsVolume() != null) {
++            String state = getExternalAppsVolumeState();
++
++            if (state.equals(MEDIA_MOUNTED)) {
++                final File temp = new File("/data/system/no-external-apps");
++                if (temp.exists()) {
++                    Log.v(TAG, "Application moving was explicitly disabled");
++                    return false;
++                }
++                return true;
++            }
++        } else {
++            Log.v(TAG, "External apps volume is NOT available");
++        }
++        return false;
++    }
++
++    /**
++     * Gets the current state of the external apps volume.
++     * @see #getExternalAppsVolumeDirectory()
++     * @return String containing the state of the external apps volume.
++     * @hide
++     */
++    public static String getExternalAppsVolumeState() {
++        try {
++            IMountService mountService = IMountService.Stub.asInterface(ServiceManager
++                    .getService("mount"));
++            return mountService.getVolumeState(getExternalAppsVolume().getPath());
++        } catch (RemoteException rex) {
++            Log.w(TAG, "Failed to read external SD state; assuming REMOVED: " + rex);
++            return Environment.MEDIA_REMOVED;
++        }
++    }
++
++    /**
++     * Gets the mount point/directory of the external apps volume.
++     * @return File object for the directory of the external apps volume.
++     * @hide
++     */
++    public static File getExternalAppsVolumeDirectory() {
++        StorageVolume volume = getExternalAppsVolume();
++        if (volume != null) {
++          return new File(volume.getPath());
++        }
++        return null;
++    }
++
++    /**
+      * Return directory used for internal media storage, which is protected by
+      * {@link android.Manifest.permission#WRITE_MEDIA_STORAGE}.
+      *
+diff --git a/frameworks/base/core/java/android/os/storage/StorageVolume.java b/frameworks/base/core/java/android/os/storage/StorageVolume.java
+index 06565f1..1328d25 100644
+--- a/frameworks/base/core/java/android/os/storage/StorageVolume.java
++++ b/frameworks/base/core/java/android/os/storage/StorageVolume.java
+@@ -48,6 +48,7 @@ public class StorageVolume implements Parcelable {
+     private final long mMaxFileSize;
+     /** When set, indicates exclusive ownership of this volume */
+     private final UserHandle mOwner;
++    private final boolean mExternalApps;
+ 
+     private String mUuid;
+     private String mUserLabel;
+@@ -70,6 +71,22 @@ public class StorageVolume implements Parcelable {
+         mAllowMassStorage = allowMassStorage;
+         mMaxFileSize = maxFileSize;
+         mOwner = owner;
++        mExternalApps = false;
++    }
++
++    public StorageVolume(File path, int descriptionId, boolean primary, boolean removable,
++            boolean emulated, int mtpReserveSpace, boolean allowMassStorage, long maxFileSize,
++            UserHandle owner, boolean externalApps) {
++        mPath = path;
++        mDescriptionId = descriptionId;
++        mPrimary = primary;
++        mRemovable = removable;
++        mEmulated = emulated;
++        mMtpReserveSpace = mtpReserveSpace;
++        mAllowMassStorage = allowMassStorage;
++        mMaxFileSize = maxFileSize;
++        mOwner = owner;
++        mExternalApps = externalApps;
+     }
+ 
+     private StorageVolume(Parcel in) {
+@@ -83,6 +100,7 @@ public class StorageVolume implements Parcelable {
+         mAllowMassStorage = in.readInt() != 0;
+         mMaxFileSize = in.readLong();
+         mOwner = in.readParcelable(null);
++        mExternalApps = in.readInt() != 0;
+         mUuid = in.readString();
+         mUserLabel = in.readString();
+         mState = in.readString();
+@@ -91,7 +109,7 @@ public class StorageVolume implements Parcelable {
+     public static StorageVolume fromTemplate(StorageVolume template, File path, UserHandle owner) {
+         return new StorageVolume(path, template.mDescriptionId, template.mPrimary,
+                 template.mRemovable, template.mEmulated, template.mMtpReserveSpace,
+-                template.mAllowMassStorage, template.mMaxFileSize, owner);
++                template.mAllowMassStorage, template.mMaxFileSize, owner, template.mExternalApps);
+     }
+ 
+     /**
+@@ -143,6 +161,15 @@ public class StorageVolume implements Parcelable {
+     }
+ 
+     /**
++     * Returns true if the volume supports external apps.
++     *
++     * @return supports external apps
++     */
++    public boolean isExternalApps() {
++        return mExternalApps;
++    }
++
++    /**
+      * Returns the MTP storage ID for the volume.
+      * this is also used for the storage_id column in the media provider.
+      *
+@@ -272,6 +299,7 @@ public class StorageVolume implements Parcelable {
+         pw.printPair("mAllowMassStorage", mAllowMassStorage);
+         pw.printPair("mMaxFileSize", mMaxFileSize);
+         pw.printPair("mOwner", mOwner);
++        pw.printPair("mExternalApps", mExternalApps);
+         pw.printPair("mUuid", mUuid);
+         pw.printPair("mUserLabel", mUserLabel);
+         pw.printPair("mState", mState);
+@@ -307,6 +335,7 @@ public class StorageVolume implements Parcelable {
+         parcel.writeInt(mAllowMassStorage ? 1 : 0);
+         parcel.writeLong(mMaxFileSize);
+         parcel.writeParcelable(mOwner, flags);
++        parcel.writeInt(mExternalApps ? 1 : 0);
+         parcel.writeString(mUuid);
+         parcel.writeString(mUserLabel);
+         parcel.writeString(mState);
+diff --git a/frameworks/base/core/res/res/values/attrs.xml b/frameworks/base/core/res/res/values/attrs.xml
+index 43f64ef..06d77ea 100644
+--- a/frameworks/base/core/res/res/values/attrs.xml
++++ b/frameworks/base/core/res/res/values/attrs.xml
+@@ -6008,6 +6008,8 @@
+         <attr name="allowMassStorage" format="boolean" />
+         <!-- maximum file size for the volume in megabytes, zero or unspecified if it is unbounded -->
+         <attr name="maxFileSize" format="integer" />
++        <!-- true if volume supports external apps -->
++        <attr name="externalApps" format="boolean" />
+     </declare-styleable>
+ 
+     <declare-styleable name="SwitchPreference">
+diff --git a/frameworks/base/packages/DefaultContainerService/src/com/android/defcontainer/DefaultContainerService.java b/frameworks/base/packages/DefaultContainerService/src/com/android/defcontainer/DefaultContainerService.java
+index 13e1030..6031117 100644
+--- a/frameworks/base/packages/DefaultContainerService/src/com/android/defcontainer/DefaultContainerService.java
++++ b/frameworks/base/packages/DefaultContainerService/src/com/android/defcontainer/DefaultContainerService.java
+@@ -234,7 +234,7 @@ public class DefaultContainerService extends IntentService {
+         public long calculateDirectorySize(String path) throws RemoteException {
+             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
+ 
+-            final File dir = Environment.maybeTranslateEmulatedPathToInternal(new File(path));
++            final File dir = new File(path);
+             if (dir.exists() && dir.isDirectory()) {
+                 final String targetPath = dir.getAbsolutePath();
+                 return MeasurementUtils.measureDirectory(targetPath);
+@@ -764,7 +764,7 @@ public class DefaultContainerService extends IntentService {
+             prefer = PREFER_INTERNAL;
+         }
+ 
+-        final boolean emulated = Environment.isExternalStorageEmulated();
++        final boolean externalApps = Environment.isExternalAppsAvailableAndMounted();
+ 
+         final File apkFile = new File(archiveFilePath);
+ 
+@@ -778,7 +778,7 @@ public class DefaultContainerService extends IntentService {
+         }
+ 
+         boolean fitsOnSd = false;
+-        if (!emulated && (checkBoth || prefer == PREFER_EXTERNAL)) {
++        if (externalApps && (checkBoth || prefer == PREFER_EXTERNAL)) {
+             try {
+                 fitsOnSd = isUnderExternalThreshold(apkFile, isForwardLocked);
+             } catch (IOException e) {
+@@ -790,7 +790,7 @@ public class DefaultContainerService extends IntentService {
+             if (fitsOnInternal) {
+                 return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
+             }
+-        } else if (!emulated && prefer == PREFER_EXTERNAL) {
++        } else if (externalApps && prefer == PREFER_EXTERNAL) {
+             if (fitsOnSd) {
+                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
+             }
+@@ -799,7 +799,7 @@ public class DefaultContainerService extends IntentService {
+         if (checkBoth) {
+             if (fitsOnInternal) {
+                 return PackageHelper.RECOMMEND_INSTALL_INTERNAL;
+-            } else if (!emulated && fitsOnSd) {
++            } else if (externalApps && fitsOnSd) {
+                 return PackageHelper.RECOMMEND_INSTALL_EXTERNAL;
+             }
+         }
+@@ -809,7 +809,7 @@ public class DefaultContainerService extends IntentService {
+          * the media was unavailable. Otherwise, indicate there was insufficient
+          * storage space available.
+          */
+-        if (!emulated && (checkBoth || prefer == PREFER_EXTERNAL)
++        if (externalApps && (checkBoth || prefer == PREFER_EXTERNAL)
+                 && !Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+             return PackageHelper.RECOMMEND_MEDIA_UNAVAILABLE;
+         } else {
+@@ -853,15 +853,16 @@ public class DefaultContainerService extends IntentService {
+      */
+     private boolean isUnderExternalThreshold(File apkFile, boolean isForwardLocked)
+             throws IOException {
+-        if (Environment.isExternalStorageEmulated()) {
++        if (!Environment.isExternalAppsAvailableAndMounted()) {
+             return false;
+         }
+ 
+         final int sizeMb = calculateContainerSize(apkFile, isForwardLocked);
+ 
+         final int availSdMb;
+-        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+-            final StatFs sdStats = new StatFs(Environment.getExternalStorageDirectory().getPath());
++        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalAppsVolumeState())) {
++            final StatFs sdStats = new StatFs(
++                    Environment.getExternalAppsVolumeDirectory().getPath());
+             final int blocksToMb = (1 << 20) / sdStats.getBlockSize();
+             availSdMb = sdStats.getAvailableBlocks() / blocksToMb;
+         } else {
+diff --git a/frameworks/base/services/java/com/android/server/MountService.java b/frameworks/base/services/java/com/android/server/MountService.java
+old mode 100644
+new mode 100755
+index 4c5a5c2..8a16a07
+--- a/frameworks/base/services/java/com/android/server/MountService.java
++++ b/frameworks/base/services/java/com/android/server/MountService.java
+@@ -704,7 +704,7 @@ class MountService extends IMountService.Stub
+ 
+         // Tell PackageManager about changes to primary volume state, but only
+         // when not emulated.
+-        if (volume.isPrimary() && !volume.isEmulated()) {
++        if (volume.isExternalApps()) {
+             if (Environment.MEDIA_UNMOUNTED.equals(state)) {
+                 mPms.updateExternalMediaStatus(false, false);
+ 
+@@ -1083,7 +1083,7 @@ class MountService extends IMountService.Stub
+         Runtime.getRuntime().gc();
+ 
+         // Redundant probably. But no harm in updating state again.
+-        if (isPrimaryStorage(path)) {
++        if (isExternalApps(path)) {
+             mPms.updateExternalMediaStatus(false, false);
+         }
+         try {
+@@ -1265,18 +1265,21 @@ class MountService extends IMountService.Stub
+                     // resource parser does not support longs, so XML value is in megabytes
+                     long maxFileSize = a.getInt(
+                             com.android.internal.R.styleable.Storage_maxFileSize, 0) * 1024L * 1024L;
++                    boolean externalApps = a.getBoolean(
++                            com.android.internal.R.styleable.Storage_externalApps, false);
+ 
+                     Slog.d(TAG, "got storage path: " + path + " description: " + description +
+                             " primary: " + primary + " removable: " + removable +
+                             " emulated: " + emulated +  " mtpReserve: " + mtpReserve +
+                             " allowMassStorage: " + allowMassStorage +
+-                            " maxFileSize: " + maxFileSize);
++                            " maxFileSize: " + maxFileSize +
++                            " externalApps: " + externalApps);
+ 
+                     if (emulated && primary) {
+                         // For devices with emulated primary storage,
+                         // we create separate volumes for each known user.
+                         mEmulatedTemplate = new StorageVolume(null, descriptionId, true, false,
+-                                true, mtpReserve, false, maxFileSize, null);
++                                true, mtpReserve, false, maxFileSize, null, externalApps);
+ 
+                         final UserManagerService userManager = UserManagerService.getInstance();
+                         for (UserInfo user : userManager.getUsers(false)) {
+@@ -1289,7 +1292,7 @@ class MountService extends IMountService.Stub
+                         } else {
+                             final StorageVolume volume = new StorageVolume(new File(path),
+                                     descriptionId, primary, removable, emulated, mtpReserve,
+-                                    allowMassStorage, maxFileSize, null);
++                                    allowMassStorage, maxFileSize, null, externalApps);
+                             addVolumeLocked(volume);
+ 
+                             // Until we hear otherwise, treat as unmounted
+@@ -1546,6 +1549,17 @@ class MountService extends IMountService.Stub
+         }
+     }
+ 
++    private boolean isExternalApps(String path) {
++        synchronized (mVolumesLock) {
++            for (StorageVolume volume : mVolumes) {
++                if (volume.isExternalApps() && volume.getPath().equals(path)) {
++                    return true;
++                }
++            }
++            return false;
++        }
++    }
++
+     private boolean isPrimaryStorage(String path) {
+         synchronized (mVolumesLock) {
+             for (StorageVolume volume : mVolumes) {
+
+project packages/apps/Settings/
+diff --git a/packages/apps/Settings/res/values/cm_strings.xml b/packages/apps/Settings/res/values/cm_strings.xml
+index 79c8a8c..2b89779 100644
+--- a/packages/apps/Settings/res/values/cm_strings.xml
++++ b/packages/apps/Settings/res/values/cm_strings.xml
+@@ -1466,4 +1466,13 @@ two in order to insert additional control points. \'Remove\' deletes the selecte
+     <string name="lock_to_cyanogen_disable_msg">Disabling this feature will allow unauthorized users to reset your phone to factory defaults if it is stolen. Your personal data may not be protected. Do you want to disable this feature?</string>
+     <string name="lock_to_cyanogen_master_clear_warning">Device Protection is enabled. Please disable to continue resetting your device.</string>
+ 
++    <!-- App moving -->
++    <string name="app_moving_enable">Enable app moving</string>
++    <string name="app_moving_disable">Disable app moving</string>
++    <string name="app_moving_reboot_title">Reboot now?</string>
++    <string name="app_moving_reboot_enabled_desc">Successfully enabled application moving.\n\nThe device needs to be rebooted for the setting to take effect.</string>
++    <string name="app_moving_reboot_disabled_desc">Successfully disabled application moving.\n\nThe device needs to be rebooted for the setting to take effect.</string>
++    <string name="app_moving_reboot_now_button">Reboot now</string>
++    <string name="app_moving_reboot_later_button">Reboot later</string>
++
+ </resources>
+diff --git a/packages/apps/Settings/src/com/android/settings/applications/InstalledAppDetails.java b/packages/apps/Settings/src/com/android/settings/applications/InstalledAppDetails.java
+index 36fce36..5b79636 100644
+--- a/packages/apps/Settings/src/com/android/settings/applications/InstalledAppDetails.java
++++ b/packages/apps/Settings/src/com/android/settings/applications/InstalledAppDetails.java
+@@ -305,7 +305,7 @@ public class InstalledAppDetails extends Fragment
+     }
+ 
+     private void initMoveButton() {
+-        if (Environment.isExternalStorageEmulated()) {
++        if (!Environment.isExternalAppsAvailableAndMounted()) {
+             mMoveAppButton.setVisibility(View.INVISIBLE);
+             return;
+         }
+@@ -492,7 +492,7 @@ public class InstalledAppDetails extends Fragment
+         mExternalCodeSize = (TextView)view.findViewById(R.id.external_code_size_text);
+         mExternalDataSize = (TextView)view.findViewById(R.id.external_data_size_text);
+ 
+-        if (Environment.isExternalStorageEmulated()) {
++        if (!Environment.isExternalAppsAvailableAndMounted()) {
+             ((View)mExternalCodeSize.getParent()).setVisibility(View.GONE);
+             ((View)mExternalDataSize.getParent()).setVisibility(View.GONE);
+         }
+@@ -1060,7 +1060,7 @@ public class InstalledAppDetails extends Fragment
+             mHaveSizes = true;
+             long codeSize = mAppEntry.codeSize;
+             long dataSize = mAppEntry.dataSize;
+-            if (Environment.isExternalStorageEmulated()) {
++            if (!Environment.isExternalAppsAvailableAndMounted()) {
+                 codeSize += mAppEntry.externalCodeSize;
+                 dataSize +=  mAppEntry.externalDataSize;
+             } else {
+diff --git a/packages/apps/Settings/src/com/android/settings/applications/ManageApplications.java b/packages/apps/Settings/src/com/android/settings/applications/ManageApplications.java
+index 9456286..adbbaf5 100644
+--- a/packages/apps/Settings/src/com/android/settings/applications/ManageApplications.java
++++ b/packages/apps/Settings/src/com/android/settings/applications/ManageApplications.java
+@@ -41,6 +41,7 @@ import android.os.Bundle;
+ import android.os.Environment;
+ import android.os.Handler;
+ import android.os.IBinder;
++import android.os.PowerManager;
+ import android.os.RemoteException;
+ import android.os.ServiceManager;
+ import android.os.UserHandle;
+@@ -77,6 +78,7 @@ import com.android.settings.Settings.StorageUseActivity;
+ import com.android.settings.applications.ApplicationsState.AppEntry;
+ import com.android.settings.deviceinfo.StorageMeasurement;
+ import com.android.settings.Utils;
++import com.android.internal.util.slim.AppMoving;
+ 
+ import java.util.ArrayList;
+ import java.util.Comparator;
+@@ -144,6 +146,7 @@ public class ManageApplications extends Fragment implements
+     private static final String EXTRA_SORT_ORDER = "sortOrder";
+     private static final String EXTRA_SHOW_BACKGROUND = "showBackground";
+     private static final String EXTRA_DEFAULT_LIST_TYPE = "defaultListType";
++    private static final String EXTRA_REBOOT_DIALOG = "rebootDialog";
+     private static final String EXTRA_RESET_DIALOG = "resetDialog";
+ 
+     // attributes used as keys when passing values to InstalledAppDetails activity
+@@ -169,8 +172,10 @@ public class ManageApplications extends Fragment implements
+     public static final int SORT_ORDER_SIZE = MENU_OPTIONS_BASE + 5;
+     public static final int SHOW_RUNNING_SERVICES = MENU_OPTIONS_BASE + 6;
+     public static final int SHOW_BACKGROUND_PROCESSES = MENU_OPTIONS_BASE + 7;
+-    public static final int RESET_APP_PREFERENCES = MENU_OPTIONS_BASE + 8;
+-    public static final int SHOW_PROTECTED_APPS = MENU_OPTIONS_BASE + 9;
++    public static final int APP_MOVING_ENABLE = MENU_OPTIONS_BASE + 8;
++    public static final int APP_MOVING_DISABLE = MENU_OPTIONS_BASE + 9;
++    public static final int RESET_APP_PREFERENCES = MENU_OPTIONS_BASE + 10;
++    public static final int SHOW_PROTECTED_APPS = MENU_OPTIONS_BASE + 11;
+ 
+     // sort order
+     private int mSortOrder = SORT_ORDER_ALPHA;
+@@ -338,7 +343,7 @@ public class ManageApplications extends Fragment implements
+                 if (mContainerService != null) {
+                     try {
+                         final long[] stats = mContainerService.getFileSystemStats(
+-                                Environment.getExternalStorageDirectory().getPath());
++                                Environment.getExternalAppsVolumeDirectory().getPath());
+                         mTotalStorage = stats[0];
+                         mFreeStorage = stats[1];
+                     } catch (RemoteException e) {
+@@ -366,13 +371,13 @@ public class ManageApplications extends Fragment implements
+                     }
+                 }
+ 
+-                final boolean emulatedStorage = Environment.isExternalStorageEmulated();
++                final boolean externalApps = Environment.isExternalAppsAvailableAndMounted();
+                 if (mApplications != null) {
+                     final int N = mApplications.getCount();
+                     for (int i=0; i<N; i++) {
+                         ApplicationsState.AppEntry ae = mApplications.getAppEntry(i);
+                         mAppStorage += ae.codeSize + ae.dataSize;
+-                        if (emulatedStorage) {
++                        if (!externalApps) {
+                             mAppStorage += ae.externalCodeSize + ae.externalDataSize;
+                         }
+                     }
+@@ -466,6 +471,7 @@ public class ManageApplications extends Fragment implements
+     private View mRootView;
+     private ViewPager mViewPager;
+ 
++    AlertDialog mRebootDialog;
+     AlertDialog mResetDialog;
+ 
+     class MyPagerAdapter extends PagerAdapter
+@@ -608,8 +614,8 @@ public class ManageApplications extends Fragment implements
+             if (DEBUG) Log.i(TAG, "Rebuilding app list...");
+             ApplicationsState.AppFilter filterObj;
+             Comparator<AppEntry> comparatorObj;
+-            boolean emulated = Environment.isExternalStorageEmulated();
+-            if (emulated) {
++            boolean externalApps = Environment.isExternalAppsAvailableAndMounted();
++            if (!externalApps) {
+                 mWhichSize = SIZE_TOTAL;
+             } else {
+                 mWhichSize = SIZE_INTERNAL;
+@@ -620,7 +626,7 @@ public class ManageApplications extends Fragment implements
+                     break;
+                 case FILTER_APPS_SDCARD:
+                     filterObj = ApplicationsState.ON_SD_CARD_FILTER;
+-                    if (!emulated) {
++                    if (externalApps) {
+                         mWhichSize = SIZE_EXTERNAL;
+                     }
+                     break;
+@@ -873,7 +879,7 @@ public class ManageApplications extends Fragment implements
+                 LIST_TYPE_DOWNLOADED, this, savedInstanceState);
+         mTabs.add(tab);
+ 
+-        if (!Environment.isExternalStorageEmulated()) {
++        if (Environment.isExternalAppsAvailableAndMounted()) {
+             tab = new TabInfo(this, mApplicationsState,
+                     getActivity().getString(R.string.filter_apps_onsdcard),
+                     LIST_TYPE_SDCARD, this, savedInstanceState);
+@@ -922,6 +928,10 @@ public class ManageApplications extends Fragment implements
+             ((PreferenceFrameLayout.LayoutParams) rootView.getLayoutParams()).removeBorders = true;
+         }
+ 
++        if (savedInstanceState != null && savedInstanceState.getBoolean(EXTRA_REBOOT_DIALOG)) {
++            buildRebootDialog();
++        }
++
+         if (savedInstanceState != null && savedInstanceState.getBoolean(EXTRA_RESET_DIALOG)) {
+             buildResetDialog();
+         }
+@@ -962,6 +972,9 @@ public class ManageApplications extends Fragment implements
+             outState.putInt(EXTRA_DEFAULT_LIST_TYPE, mDefaultListType);
+         }
+         outState.putBoolean(EXTRA_SHOW_BACKGROUND, mShowBackground);
++        if (mRebootDialog != null) {
++            outState.putBoolean(EXTRA_REBOOT_DIALOG, true);
++        }
+         if (mResetDialog != null) {
+             outState.putBoolean(EXTRA_RESET_DIALOG, true);
+         }
+@@ -979,6 +992,12 @@ public class ManageApplications extends Fragment implements
+     @Override
+     public void onStop() {
+         super.onStop();
++
++        if (mRebootDialog != null) {
++            mRebootDialog.dismiss();
++            mRebootDialog = null;
++        }
++
+         if (mResetDialog != null) {
+             mResetDialog.dismiss();
+             mResetDialog = null;
+@@ -1049,10 +1068,14 @@ public class ManageApplications extends Fragment implements
+                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+         menu.add(0, SHOW_BACKGROUND_PROCESSES, 3, R.string.show_background_processes)
+                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+-        menu.add(0, RESET_APP_PREFERENCES, 4, R.string.reset_app_preferences)
++		menu.add(0, APP_MOVING_ENABLE, 4, R.string.app_moving_enable)
++                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
++        menu.add(0, APP_MOVING_DISABLE, 5, R.string.app_moving_disable)
++                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
++        menu.add(0, RESET_APP_PREFERENCES, 6, R.string.reset_app_preferences)
+                 .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+         if (!Utils.isRestrictedProfile(getActivity())) {
+-            menu.add(0, SHOW_PROTECTED_APPS, 5, R.string.protected_apps)
++            menu.add(0, SHOW_PROTECTED_APPS, 7, R.string.protected_apps)
+                     .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+         }
+         updateOptionsMenu();
+@@ -1091,6 +1114,8 @@ public class ManageApplications extends Fragment implements
+             mOptionsMenu.findItem(SORT_ORDER_SIZE).setVisible(false);
+             mOptionsMenu.findItem(SHOW_RUNNING_SERVICES).setVisible(showingBackground);
+             mOptionsMenu.findItem(SHOW_BACKGROUND_PROCESSES).setVisible(!showingBackground);
++            mOptionsMenu.findItem(APP_MOVING_ENABLE).setVisible(false);
++            mOptionsMenu.findItem(APP_MOVING_DISABLE).setVisible(false);
+             mOptionsMenu.findItem(RESET_APP_PREFERENCES).setVisible(false);
+             if (!Utils.isRestrictedProfile(getActivity())) {
+                 mOptionsMenu.findItem(SHOW_PROTECTED_APPS).setVisible(true);
+@@ -1101,6 +1126,8 @@ public class ManageApplications extends Fragment implements
+             mOptionsMenu.findItem(SORT_ORDER_SIZE).setVisible(mSortOrder != SORT_ORDER_SIZE);
+             mOptionsMenu.findItem(SHOW_RUNNING_SERVICES).setVisible(false);
+             mOptionsMenu.findItem(SHOW_BACKGROUND_PROCESSES).setVisible(false);
++            mOptionsMenu.findItem(APP_MOVING_ENABLE).setVisible(!AppMoving.isEnabled());
++            mOptionsMenu.findItem(APP_MOVING_DISABLE).setVisible(AppMoving.isEnabled());
+             mOptionsMenu.findItem(RESET_APP_PREFERENCES).setVisible(true);
+             if (!Utils.isRestrictedProfile(getActivity())) {
+                 mOptionsMenu.findItem(SHOW_PROTECTED_APPS).setVisible(true);
+@@ -1108,6 +1135,22 @@ public class ManageApplications extends Fragment implements
+         }
+     }
+ 
++    void buildRebootDialog() {
++        if (mRebootDialog == null) {
++            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
++            builder.setTitle(R.string.app_moving_reboot_title);
++            if (AppMoving.isEnabled()) {
++                builder.setMessage(R.string.app_moving_reboot_enabled_desc);
++            } else {
++                builder.setMessage(R.string.app_moving_reboot_disabled_desc);
++            }
++            builder.setPositiveButton(R.string.app_moving_reboot_now_button, this);
++            builder.setNegativeButton(R.string.app_moving_reboot_later_button, null);
++            mRebootDialog = builder.show();
++            mRebootDialog.setOnDismissListener(this);
++        }
++    }
++
+     void buildResetDialog() {
+         if (mResetDialog == null) {
+             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+@@ -1122,7 +1165,9 @@ public class ManageApplications extends Fragment implements
+ 
+     @Override
+     public void onDismiss(DialogInterface dialog) {
+-        if (mResetDialog == dialog) {
++        if (mRebootDialog == dialog) {
++            mRebootDialog = null;
++        } else if (mResetDialog == dialog) {
+             mResetDialog = null;
+         }
+     }
+@@ -1130,7 +1175,12 @@ public class ManageApplications extends Fragment implements
+ 
+     @Override
+     public void onClick(DialogInterface dialog, int which) {
+-        if (mResetDialog == dialog) {
++        if (mRebootDialog == dialog) {
++            mRebootDialog = null;
++            PowerManager pm = (PowerManager)
++                    getActivity().getSystemService(Context.POWER_SERVICE);
++            pm.reboot(null);
++        } else if (mResetDialog == dialog) {
+             final PackageManager pm = getActivity().getPackageManager();
+             final IPackageManager mIPm = IPackageManager.Stub.asInterface(
+                     ServiceManager.getService("package"));
+@@ -1217,6 +1267,12 @@ public class ManageApplications extends Fragment implements
+             if (mCurTab != null && mCurTab.mRunningProcessesView != null) {
+                 mCurTab.mRunningProcessesView.mAdapter.setShowBackground(true);
+             }
++        } else if (menuId == APP_MOVING_ENABLE) {
++            AppMoving.setEnabled(true);
++            buildRebootDialog();
++        } else if (menuId == APP_MOVING_DISABLE) {
++            AppMoving.setEnabled(false);
++            buildRebootDialog();
+         } else if (menuId == RESET_APP_PREFERENCES) {
+             buildResetDialog();
+         } else if (menuId == SHOW_PROTECTED_APPS) {
+diff --git a/packages/apps/Settings/src/com/android/settings/deviceinfo/StorageMeasurement.java b/packages/apps/Settings/src/com/android/settings/deviceinfo/StorageMeasurement.java
+index 34ef62b..e1dd3bb 100644
+--- a/packages/apps/Settings/src/com/android/settings/deviceinfo/StorageMeasurement.java
++++ b/packages/apps/Settings/src/com/android/settings/deviceinfo/StorageMeasurement.java
+@@ -249,7 +249,7 @@ public class StorageMeasurement {
+                 long codeSize = stats.codeSize;
+                 long dataSize = stats.dataSize;
+                 long cacheSize = stats.cacheSize;
+-                if (Environment.isExternalStorageEmulated()) {
++                if (!Environment.isExternalAppsAvailableAndMounted()) {
+                     // Include emulated storage when measuring internal. OBB is
+                     // shared on emulated storage, so treat as code.
+                     codeSize += stats.externalCodeSize + stats.externalObbSize;
+
+project system/vold/
+diff --git a/system/vold/CommandListener.cpp b/system/vold/CommandListener.cpp
+index 70fe24d..dc8cdad 100644
+--- a/system/vold/CommandListener.cpp
++++ b/system/vold/CommandListener.cpp
+@@ -314,7 +314,10 @@ void CommandListener::AsecCmd::listAsecsInDirectory(SocketClient *cli, const cha
+     while (!readdir_r(d, dent, &result) && result != NULL) {
+         if (dent->d_name[0] == '.')
+             continue;
+-        if (dent->d_type != DT_REG)
++        // For whatever reason, the exFAT fuse driver reports DT_UNKNOWN for
++        // the .asec files, so we'll have to allow that to make external apps
++        // work properly.
++        if (dent->d_type != DT_REG && dent->d_type != DT_UNKNOWN)
+             continue;
+         size_t name_len = strlen(dent->d_name);
+         if (name_len > 5 && name_len < 260 &&
+diff --git a/system/vold/Volume.cpp b/Vsystem/vold/olume.cpp
+index 4196b2f..f09b126 100644
+--- a/system/vold/Volume.cpp
++++ b/system/vold/Volume.cpp
+@@ -217,6 +217,22 @@ void Volume::setUserLabel(const char* userLabel) {
+             msg, false);
+ }
+ 
++bool Volume::isExternalAppsEnabled() {
++    const char* disablePath = "/data/system/no-external-apps";
++
++    int flags = getFlags();
++    bool externalApps = (flags & VOL_EXTERNAL_APPS) != 0;
++
++    if (externalApps) {
++        if (access(disablePath, F_OK) != -1) {
++            SLOGV("Application moving disabled; will not touch ASEC\n");
++            return false;
++        }
++        return true;
++    }
++    return false;
++}
++
+ void Volume::setState(int state) {
+     char msg[255];
+     int oldState = mState;
+@@ -379,6 +395,7 @@ int Volume::mountVol() {
+ 
+     int flags = getFlags();
+     bool providesAsec = (flags & VOL_PROVIDES_ASEC) != 0;
++    bool externalApps = (flags & VOL_EXTERNAL_APPS) != 0 && isExternalAppsEnabled();
+ 
+     // TODO: handle "bind" style mounts, for emulated storage
+ 
+@@ -594,7 +611,8 @@ int Volume::mountVol() {
+         extractMetadata(devicePath);
+ 
+ #ifndef MINIVOLD
+-        if (providesAsec && mountAsecExternal() != 0) {
++        // Create android_secure on external SD
++        if ((externalApps || providesAsec) && mountAsecExternal() != 0) {
+             SLOGE("Failed to mount secure area (%s)", strerror(errno));
+             umount(getMountpoint());
+             setState(Volume::State_Idle);
+@@ -682,6 +700,7 @@ int Volume::doUnmount(const char *path, bool force) {
+ int Volume::unmountVol(bool force, bool revert) {
+     int flags = getFlags();
+     bool providesAsec = (flags & VOL_PROVIDES_ASEC) != 0;
++    bool externalApps = (flags & VOL_EXTERNAL_APPS) != 0 && isExternalAppsEnabled();
+ 
+     if (getState() != Volume::State_Mounted) {
+         SLOGE("Volume %s unmount request when not mounted", getLabel());
+@@ -700,7 +719,7 @@ int Volume::unmountVol(bool force, bool revert) {
+ 
+     // TODO: determine failure mode if FUSE times out
+ 
+-    if (providesAsec && doUnmount(Volume::SEC_ASECDIR_EXT, force) != 0) {
++    if ((externalApps || providesAsec) && doUnmount(Volume::SEC_ASECDIR_EXT, force) != 0) {
+         SLOGE("Failed to unmount secure area on %s (%s)", getMountpoint(), strerror(errno));
+         goto out_mounted;
+     }
+@@ -736,7 +755,7 @@ int Volume::unmountVol(bool force, bool revert) {
+     return 0;
+ 
+ fail_remount_secure:
+-    if (providesAsec && mountAsecExternal() != 0) {
++    if ((externalApps || providesAsec) && mountAsecExternal() != 0) {
+         SLOGE("Failed to remount secure area (%s)", strerror(errno));
+         goto out_nomedia;
+     }
+diff --git a/system/vold/Volume.h b/Volume.h
+index c1be400..a0b6d50 100644
+--- a/Volume.h
++++ b/Volume.h
+@@ -79,6 +79,7 @@ public:
+     const char* getLabel() { return mLabel; }
+     const char* getUuid() { return mUuid; }
+     const char* getUserLabel() { return mUserLabel; }
++    bool isExternalAppsEnabled();
+     int getState() { return mState; }
+     int getFlags() { return mFlags; };
+ 
+diff --git a/VolumeManager.cpp b/VolumeManager.cpp
+index cb23d95..4d26862 100644
+--- a/system/vold/VolumeManager.cpp
++++ b/system/vold/VolumeManager.cpp
+@@ -1704,8 +1704,11 @@ bool VolumeManager::isMountpointMounted(const char *mp)
+ }
+ 
+ int VolumeManager::cleanupAsec(Volume *v, bool force) {
+-    // Only primary storage needs ASEC cleanup
+-    if (!(v->getFlags() & VOL_PROVIDES_ASEC)) {
++    // Continue for the primary storage (VOL_PROVIDES_ASEC) and for the
++    // external apps volume (VOL_EXTERNAL_APPS) if app moving is enabled
++    if ((v->getFlags() & VOL_PROVIDES_ASEC) == 0
++                && ((v->getFlags() & VOL_EXTERNAL_APPS) == 0
++                        || !v->isExternalAppsEnabled())) {
+         return 0;
+     }
+ 
+diff --git a/system/vold/cryptfs.h b/system/vold/cryptfs.h
+index 162159e..4e318b8 100644
+--- a/system/vold/cryptfs.h
++++ b/system/vold/cryptfs.h
+@@ -131,6 +131,7 @@ struct volume_info {
+ #define VOL_ENCRYPTABLE    0x2
+ #define VOL_PRIMARY        0x4
+ #define VOL_PROVIDES_ASEC  0x8
++#define VOL_EXTERNAL_APPS  0x10
+ 
+ #ifdef __cplusplus
+ extern "C" {
+diff --git a/system/vold/main.cpp b/system/vold/main.cpp
+index 22bae40..5197b35 100644
+--- a/main.cpp
++++ b/main.cpp
+@@ -36,6 +36,10 @@
+ #include "DirectVolume.h"
+ #include "cryptfs.h"
+ 
++#ifndef EXTERNAL_APPS_DEVICE_LABEL
++#define EXTERNAL_APPS_DEVICE_LABEL ""
++#endif
++
+ static int process_config(VolumeManager *vm);
+ static void coldboot(const char *path);
+ 
+@@ -184,6 +188,10 @@ static int process_config(VolumeManager *vm)
+             if (fs_mgr_is_noemulatedsd(&fstab->recs[i])) {
+                 flags |= VOL_PROVIDES_ASEC;
+             }
++            /* Set this flag if the storage device supports having external apps */
++            if (strcmp(fstab->recs[i].label, EXTERNAL_APPS_DEVICE_LABEL) == 0) {
++                flags |= VOL_EXTERNAL_APPS;
++            }
+             dv = new DirectVolume(vm, &(fstab->recs[i]), flags);
+ 
+             if (dv->addPath(fstab->recs[i].blk_device)) {
+
