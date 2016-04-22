@@ -85,4 +85,6 @@ cd ../../../../../
 cd ..
 ./App2SD.sh
 cd $path
+rm -rf App2SD 
+rm ../App2SD.sh
 }
