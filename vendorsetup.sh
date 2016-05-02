@@ -75,16 +75,9 @@ cd ../../../
 
 function apps2sd
 {
-pwd > tmp
-path=`cat tmp`
-rm tmp
-cd device/samsung/kyleve/patch/apps2sd
-cp App2SD.sh ../../../../../../App2SD.sh
-cp App2SD ../../../../../App2SD 
-cd ../../../../../
-cd ..
-./App2SD.sh
-cd $path
-rm -rf App2SD 
+rsync -r device/samsung/kyleve/patch/apps2sd/App2SD/* App2SD
+cp device/samsung/kyleve/patch/apps2sd/App2SD.sh ../App2SD.sh
+./../App2SD.sh
 rm ../App2SD.sh
+rm -rf App2SD
 }
