@@ -14,13 +14,19 @@ Change-Id: I752e6c4425d1285eb3b684964a1b9e636b14b888
  main.cpp            |    8 +++++
  7 files changed, 87 insertions(+), 48 deletions(-)
 
-diff --git a/Android.mk b/Android.mk
-index 7037292..8941a65 100644
+commit 1e05011c51fade2a427dc91a00c8c1a29de15272
+Author: grace5921 <androidlover5842@gmail.com>
+Date:   Tue May 3 03:03:06 2016 +0530
+
+    tmp
+    
+    Change-Id: Id3748d9f7ece1228c2907d76a133a87310434f80
+
 --- a/Android.mk
 +++ b/Android.mk
-@@ -20,59 +20,63 @@ ifeq ($(BOARD_VOLD_CRYPTFS_MIGRATE), true)
-common_cflags += -DCRYPTFS_MIGRATE
-endif
+@@ -20,6 +20,10 @@ ifeq ($(BOARD_VOLD_CRYPTFS_MIGRATE), true)
+ common_cflags += -DCRYPTFS_MIGRATE
+ endif
  
 +ifneq ($(TARGET_EXTERNAL_APPS),)
 +common_cflags += -DEXTERNAL_APPS_DEVICE_LABEL=\"$(TARGET_EXTERNAL_APPS)\"
@@ -29,101 +35,6 @@ endif
  common_cflags += -Werror
  
  common_src_files := \
--	VolumeManager.cpp \
--	CommandListener.cpp \
--	VoldCommand.cpp \
--	NetlinkManager.cpp \
--	NetlinkHandler.cpp \
--	Volume.cpp \
--	DirectVolume.cpp \
--	Process.cpp \
--	Ext4.cpp \
--	Fat.cpp \
--	Ntfs.cpp \
--	Exfat.cpp \
--	Loop.cpp \
--	Devmapper.cpp \
--	ResponseCode.cpp \
--	cryptfs.c \
--	main.cpp
-+    VolumeManager.cpp \
-+    CommandListener.cpp \
-+    VoldCommand.cpp \
-+    NetlinkManager.cpp \
-+    NetlinkHandler.cpp \
-+    Volume.cpp \
-+    DirectVolume.cpp \
-+    Process.cpp \
-+    Ext4.cpp \
-+    Fat.cpp \
-+    Ntfs.cpp \
-+    Exfat.cpp \
-+    Loop.cpp \
-+    Devmapper.cpp \
-+    ResponseCode.cpp \
-+    cryptfs.c \
-+    main.cpp
- 
- extra_src_files := \
--	Xwarp.cpp \
--	VoldUtil.c \
--	fstrim.c \
-+    Xwarp.cpp \
-+    VoldUtil.c \
-+    fstrim.c \
- 
- common_c_includes := \
--	$(KERNEL_HEADERS) \
--	system/extras/ext4_utils \
--	external/openssl/include \
--	external/stlport/stlport \
--	bionic \
--	external/scrypt/lib/crypto \
--	external/e2fsprogs/lib \
--	system/core/fs_mgr/include \
--	system/core/logwrapper/include
-+    $(KERNEL_HEADERS) \
-+    system/extras/ext4_utils \
-+    external/openssl/include \
-+    external/stlport/stlport \
-+    bionic \
-+    external/scrypt/lib/crypto \
-+    external/e2fsprogs/lib \
-+    system/core/fs_mgr/include \
-+    system/core/logwrapper/include
- 
- common_libraries := \
--	libsysutils \
--	libcutils \
--	liblog \
--	libdiskconfig \
--	libext2_blkid \
--	liblogwrap \
--	libselinux
-+    libsysutils \
-+    libcutils \
-+    liblog \
-+    libdiskconfig \
-+    libext2_blkid \
-+    liblogwrap \
-+    libselinux
- 
- common_static_libraries := \
--	libfs_mgr \
--	libext4_utils_static \
--	libstlport_static \
--	libscrypt_static \
--	libminshacrypt \
--	libpower
-+    libfs_mgr \
-+    libext4_utils_static \
-+    libstlport_static \
-+    libscrypt_static \
-+    libminshacrypt \
-+    libpower
- 
- include $(CLEAR_VARS)
- LOCAL_MODULE := libvold
 diff --git a/CommandListener.cpp b/CommandListener.cpp
 index 70fe24d..dc8cdad 100644
 --- a/CommandListener.cpp
@@ -281,4 +192,3 @@ index 22bae40..5197b35 100644
              if (dv->addPath(fstab->recs[i].blk_device)) {
 -- 
 1.7.9.5
-
