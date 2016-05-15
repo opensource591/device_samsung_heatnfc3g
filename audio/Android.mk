@@ -1,4 +1,4 @@
-ifeq ($(TARGET_DEVICE),kyleve)
+ifeq ($(TARGET_DEVICE),heatnfc3g)
 ifeq ($(TARGET_BOARD_PLATFORM),hawaii)
 
 LOCAL_PATH:= $(call my-dir)

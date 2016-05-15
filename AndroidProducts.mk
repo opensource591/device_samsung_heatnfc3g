@@ -1,2 +1,2 @@
 PRODUCT_MAKEFILES := \
-    $(LOCAL_DIR)/device_kyleve.mk
+    $(LOCAL_DIR)/device_heatnfc3g.mk

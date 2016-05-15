@@ -1,5 +1,5 @@
 #
-# KYLEVE (GT-S7392)
+# heatnfc3g (SM-G310HN)
 #
 rild.libpath=/system/lib/libbrcm_ril.so
 #rild.libargs=-d /dev/ttyS0
@@ -21,4 +21,4 @@ brcm.hwc.no-hdmi-trans=1
 ro.ril.hsxpa=1
 ro.ril.gprsclass=10
 persist.sys.dataprefer.simid=0
-ro.com.google.gmsversion=4.1_r6
+ro.com.google.gmsversion=4.4_r1
