@@ -1,4 +1,4 @@
-android_device_kyleve
+android_device_heatnfc3g
 ======================
 
 Device tree for Galaxy Ace Style Duos SM-G310HN (1 SIM)
@@ -11,7 +11,7 @@ Device tree for Galaxy Ace Style Duos SM-G310HN (1 SIM)
 
 `mkdir .repo/local_manifests`
 
-`gedit .repo/local_manifests/kyleve.xml `
+`gedit .repo/local_manifests/heatnfc3g.xml `
 
 <b>PASTE THIS INSIDE THAT FILE :- </b>
 
