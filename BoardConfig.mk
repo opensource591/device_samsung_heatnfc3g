@@ -1,7 +1,7 @@
 USE_CAMERA_STUB := true
 
 # inherit from the proprietary version
--include vendor/samsung/kyleve/BoardConfigVendor.mk
+-include vendor/samsung/heatnfc3g/BoardConfigVendor.mk
 
 # Platform
 TARGET_ARCH := arm
@@ -16,14 +16,14 @@ ARCH_ARM_HAVE_TLS_REGISTER := true
 TARGET_BOOTLOADER_BOARD_NAME := hawaii
 
 # Assert
-TARGET_OTA_ASSERT_DEVICE := kyleve,S7392,GT-S7392,hawaii
+TARGET_OTA_ASSERT_DEVICE := heatnfc3g,G310HN,SM-G310HN,hawaii
 TARGET_EXTERNAL_APPS = sdcard1
 # Kernel
 BOARD_KERNEL_CMDLINE :=
 BOARD_KERNEL_BASE := 0x82000000
 BOARD_KERNEL_PAGESIZE := 4096
-TARGET_KERNEL_CONFIG := bcm21664_hawaii_ss_kyleve_rev00_defconfig
-TARGET_KERNEL_SOURCE := kernel/samsung/kyleve
+TARGET_KERNEL_CONFIG := bcm21664_hawaii_ss_heatnfc3g_rev00_defconfig
+TARGET_KERNEL_SOURCE := kernel/samsung/heatnfc3g
 
 # PARTITION SIZE
 BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608
@@ -37,8 +37,8 @@ BOARD_FLASH_BLOCK_SIZE := 262144 #BOARD_KERNEL_PAGESIZE * 64
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/kyleve/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/samsung/kyleve/bluetooth/libbt_vndcfg_s7392.txt
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/heatnfc3g/bluetooth
+BOARD_BLUEDROID_VENDOR_CONF := device/samsung/heatnfc3g/bluetooth/libbt_vndcfg_G310HN.txt
 
 # Connectivity - Wi-Fi
 WPA_BUILD_SUPPLICANT := true
@@ -74,7 +74,7 @@ endif
 
 # Hardware rendering
 USE_OPENGL_RENDERER := true
-BOARD_EGL_CFG := device/samsung/kyleve/configs/egl.cfg
+BOARD_EGL_CFG := device/samsung/heatnfc3g/configs/egl.cfg
 BOARD_USE_MHEAP_SCREENSHOT := true
 BOARD_EGL_WORKAROUND_BUG_10194508 := true
 COMMON_GLOBAL_CFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS -DEGL_NEEDS_FNW -DHAWAII_HWC
@@ -103,13 +103,13 @@ BOARD_CHARGING_MODE_BOOTING_LPM := /sys/class/power_supply/battery/batt_lp_charg
 BOARD_BATTERY_DEVICE_NAME := "battery"
 
 # healthd
-BOARD_HAL_STATIC_LIBRARIES := libhealthd-kyleve.hawaii
+BOARD_HAL_STATIC_LIBRARIES := libhealthd-heatnfc3g.hawaii
 
 # RIL
-BOARD_RIL_CLASS := ../../../device/samsung/kyleve/ril/
+BOARD_RIL_CLASS := ../../../device/samsung/heatnfc3g/ril/
 
 # Recovery
-TARGET_RECOVERY_FSTAB := device/samsung/kyleve/ramdisk/fstab.hawaii_ss_kyleve
+TARGET_RECOVERY_FSTAB := device/samsung/heatnfc3g/ramdisk/fstab.hawaii_ss_heatnfc3g
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/android0/f_mass_storage/lun%d/file"
 BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_HAS_LARGE_FILESYSTEM := true
@@ -123,14 +123,14 @@ BOARD_SUPPRESS_EMMC_WIPE                    := true
 TARGET_RECOVERY_DENSITY                     := hdpi
 
 # CMHW
-BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/ device/samsung/kyleve/cmhw/
+BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/ device/samsung/heatnfc3g/cmhw/
 
 # GPS
-TARGET_SPECIFIC_HEADER_PATH := device/samsung/kyleve/include
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/heatnfc3g/include
 
 # SELinux
 BOARD_SEPOLICY_DIRS += \
-    device/samsung/kyleve/sepolicy
+    device/samsung/heatnfc3g/sepolicy
 
 BOARD_SEPOLICY_UNION += \
     file_contexts

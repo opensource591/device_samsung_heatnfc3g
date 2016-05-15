@@ -3,37 +3,37 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 # The gps config appropriate for this device
 $(call inherit-product, device/common/gps/gps_us_supl.mk)
 
-$(call inherit-product-if-exists, vendor/samsung/kyleve/kyleve-common-vendor.mk)
+$(call inherit-product-if-exists, vendor/samsung/heatnfc3g/heatnfc3g-common-vendor.mk)
 
 # Use high-density artwork where available
 PRODUCT_LOCALES += hdpi
 PRODUCT_AAPT_CONFIG := normal hdpi
 PRODUCT_AAPT_PREF_CONFIG := hdpi
 
-DEVICE_PACKAGE_OVERLAYS += device/samsung/kyleve/overlay
+DEVICE_PACKAGE_OVERLAYS += device/samsung/heatnfc3g/overlay
 
 # Init files
 PRODUCT_COPY_FILES += \
-	device/samsung/kyleve/ramdisk/fstab.hawaii_ss_kyleve:root/fstab.hawaii_ss_kyleve \
-	device/samsung/kyleve/ramdisk/init.rc:root/init.rc \
-	device/samsung/kyleve/ramdisk/init.hawaii_ss_kyleve.rc:root/init.hawaii_ss_kyleve.rc \
-	device/samsung/kyleve/ramdisk/init.bcm2166x.usb.rc:root/init.bcm2166x.usb.rc \
-	device/samsung/kyleve/ramdisk/init.log.rc:root/init.log.rc \
-	device/samsung/kyleve/ramdisk/lpm.rc:root/lpm.rc \
-	device/samsung/kyleve/ramdisk/charger:root/charger \
-	device/samsung/kyleve/ramdisk/ueventd.hawaii_ss_kyleve.rc:root/ueventd.hawaii_ss_kyleve.rc
+	device/samsung/heatnfc3g/ramdisk/fstab.hawaii_ss_heatnfc3g:root/fstab.hawaii_ss_heatnfc3g \
+	device/samsung/heatnfc3g/ramdisk/init.rc:root/init.rc \
+	device/samsung/heatnfc3g/ramdisk/init.hawaii_ss_heatnfc3g.rc:root/init.hawaii_ss_heatnfc3g.rc \
+	device/samsung/heatnfc3g/ramdisk/init.bcm2166x.usb.rc:root/init.bcm2166x.usb.rc \
+	device/samsung/heatnfc3g/ramdisk/init.log.rc:root/init.log.rc \
+	device/samsung/heatnfc3g/ramdisk/lpm.rc:root/lpm.rc \
+	device/samsung/heatnfc3g/ramdisk/charger:root/charger \
+	device/samsung/heatnfc3g/ramdisk/ueventd.hawaii_ss_heatnfc3g.rc:root/ueventd.hawaii_ss_heatnfc3g.rc
 	
 PRODUCT_COPY_FILES += \
-	device/samsung/kyleve/configs/media_profiles.xml:system/etc/media_profiles.xml \
-	device/samsung/kyleve/configs/audio_policy.conf:system/etc/audio_policy.conf \
-	device/samsung/kyleve/configs/media_codecs.xml:system/etc/media_codecs.xml 
+	device/samsung/heatnfc3g/configs/media_profiles.xml:system/etc/media_profiles.xml \
+	device/samsung/heatnfc3g/configs/audio_policy.conf:system/etc/audio_policy.conf \
+	device/samsung/heatnfc3g/configs/media_codecs.xml:system/etc/media_codecs.xml 
 
 # Prebuilt kl keymaps
 PRODUCT_COPY_FILES += \
-	device/samsung/kyleve/keylayouts/bcm_headset.kl:system/usr/keylayout/bcm_headset.kl \
-	device/samsung/kyleve/keylayouts/bcm_keypad_v2.kl:system/usr/keylayout/bcm_keypad_v2.kl \
-	device/samsung/kyleve/keylayouts/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
-	device/samsung/kyleve/keylayouts/samsung-keypad.kl:system/usr/keylayout/samsung-keypad.kl
+	device/samsung/heatnfc3g/keylayouts/bcm_headset.kl:system/usr/keylayout/bcm_headset.kl \
+	device/samsung/heatnfc3g/keylayouts/bcm_keypad_v2.kl:system/usr/keylayout/bcm_keypad_v2.kl \
+	device/samsung/heatnfc3g/keylayouts/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
+	device/samsung/heatnfc3g/keylayouts/samsung-keypad.kl:system/usr/keylayout/samsung-keypad.kl
 
 # Insecure ADBD
 # (ro.adb.secure=3)
@@ -170,6 +170,6 @@ else
 endif
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
-PRODUCT_NAME := full_kyleve
-PRODUCT_DEVICE := kyleve
-PRODUCT_MODEL := GT-S7392
+PRODUCT_NAME := full_heatnfc3g
+PRODUCT_DEVICE := heatnfc3g
+PRODUCT_MODEL := SM-G310HN

@@ -1,23 +1,23 @@
 for i in eng userdebug user; do
-	add_lunch_combo cm_kyleve-${i}
+	add_lunch_combo cm_heatnfc3g-${i}
 done
 
-function kyleve 
+function heatnfc3g 
 {
- mk_timer lunch cm_kyleve-userdebug
+ mk_timer lunch cm_heatnfc3g-userdebug
  mk_timer mka bacon -j4
 }
 
 function patch_fix
 {
 echo "patching cm-11.0 sources"
-time patch -p1 <device/samsung/kyleve/patch/patch.diff
+time patch -p1 <device/samsung/heatnfc3g/patch/patch.diff
 echo "done"
 }
 
 function extract 
 {
-cd device/samsung/kyleve
+cd device/samsung/heatnfc3g
 echo "####################"
 echo "Connect your device"
 echo "####################"
@@ -67,7 +67,7 @@ function mk_timer()
 
 function clean
 {
-cd device/samsung/kyleve
+cd device/samsung/heatnfc3g
 find=`find . -type f -name "*.*~"`
 rm $find
 cd ../../../
@@ -75,8 +75,8 @@ cd ../../../
 
 function apps2sd
 {
-rsync -r device/samsung/kyleve/patch/apps2sd/App2SD/* App2SD
-cp device/samsung/kyleve/patch/apps2sd/App2SD.sh ../App2SD.sh
+rsync -r device/samsung/heatnfc3g/patch/apps2sd/App2SD/* App2SD
+cp device/samsung/heatnfc3g/patch/apps2sd/App2SD.sh ../App2SD.sh
 ./../App2SD.sh
 rm ../App2SD.sh
 rm -rf App2SD
