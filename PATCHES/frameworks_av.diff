@@ -1,0 +1,378 @@
+diff --git a/include/media/stagefright/ACodec.h b/include/media/stagefright/ACodec.h
+index 3ffac34..16b77a6 100644
+--- a/include/media/stagefright/ACodec.h
++++ b/include/media/stagefright/ACodec.h
+@@ -250,9 +250,6 @@ private:
+     status_t submitOutputMetaDataBuffer();
+     void signalSubmitOutputMetaDataBufferIfEOS_workaround();
+     status_t allocateOutputBuffersFromNativeWindow();
+-#ifdef USE_SAMSUNG_COLORFORMAT
+-    void setNativeWindowColorFormat(OMX_COLOR_FORMATTYPE &eNativeColorFormat);
+-#endif
+     status_t cancelBufferToNativeWindow(BufferInfo *info);
+     status_t freeOutputBuffersNotOwnedByComponent();
+     BufferInfo *dequeueBufferFromNativeWindow();
+diff --git a/include/media/stagefright/ColorConverter.h b/include/media/stagefright/ColorConverter.h
+index 85ba920..56ebb77 100644
+--- a/include/media/stagefright/ColorConverter.h
++++ b/include/media/stagefright/ColorConverter.h
+@@ -67,6 +67,9 @@ private:
+     status_t convertCbYCrY(
+             const BitmapParams &src, const BitmapParams &dst);
+ 
++    status_t convertYCbYCr(
++            const BitmapParams &src, const BitmapParams &dst);
++
+     status_t convertYUV420Planar(
+             const BitmapParams &src, const BitmapParams &dst);
+ 
+diff --git a/media/libstagefright/ACodec.cpp b/media/libstagefright/ACodec.cpp
+index 607b7b0..370d97e 100644
+--- a/media/libstagefright/ACodec.cpp
++++ b/media/libstagefright/ACodec.cpp
+@@ -111,6 +111,8 @@
+ #include <stagefright/Utils.h>
+ #endif
+ 
++#undef USE_SAMSUNG_COLORFORMAT
++
+ namespace android {
+ 
+ // OMX errors are directly mapped into status_t range if
+@@ -736,11 +738,27 @@ status_t ACodec::configureOutputBuffersFromNativeWindow(
+             frameHeight,
+             def.format.video.eColorFormat);
+ #else
++    OMX_COLOR_FORMATTYPE HalColorFormat;
++    status_t omxresults;
++    
++    switch (def.format.video.eColorFormat) {
++        case OMX_COLOR_FormatYCbYCr:
++            def.format.video.eColorFormat = OMX_COLOR_FormatYUV420Planar;
++            omxresults = mOMX->setParameter(mNode, OMX_IndexParamPortDefinition, &def, sizeof(def));
++            if (omxresults != OK) {
++            }
++            HalColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YV12;   
++        break;
++        default:
++            HalColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YV12;   
++        break;
++    }
++
+     err = native_window_set_buffers_geometry(
+             mNativeWindow.get(),
+             def.format.video.nFrameWidth,
+             def.format.video.nFrameHeight,
+-            def.format.video.eColorFormat);
++            HalColorFormat);
+ #endif
+ 
+     if (err != 0) {
+@@ -1963,6 +1981,8 @@ status_t ACodec::configureCodec(
+         err = setMinBufferSize(kPortIndexInput, (size_t)maxInputSize);
+     } else if (!strcmp("OMX.Nvidia.aac.decoder", mComponentName.c_str())) {
+         err = setMinBufferSize(kPortIndexInput, 8192);  // XXX
++    } else if (!strncmp(mComponentName.c_str(), "OMX.brcm.video.h264.hw.decoder", 30)) {        
++        setMinBufferSize(kPortIndexInput, (1080 * 720 * 3) / 2);        
+     }
+ 
+     mBaseOutputFormat = outputFormat;
+diff --git a/media/libstagefright/OMXCodec.cpp b/media/libstagefright/OMXCodec.cpp
+index 3706e9b..1a9c9a6 100644
+--- a/media/libstagefright/OMXCodec.cpp
++++ b/media/libstagefright/OMXCodec.cpp
+@@ -124,6 +124,8 @@
+ #include "ExynosHWCService.h"
+ #endif
+ 
++#undef USE_SAMSUNG_COLORFORMAT
++
+ namespace android {
+ 
+ #ifdef USE_SAMSUNG_COLORFORMAT
+@@ -1713,6 +1715,9 @@ status_t OMXCodec::setVideoOutputFormat(
+ #endif
+ 
+         int32_t colorFormat;
++        if (!strncmp("OMX.brcm.video.h264.hw.decoder", mComponentName, 30)) {
++            format.eColorFormat = OMX_COLOR_FormatYUV420Planar;
++        }
+         if (meta->findInt32(kKeyColorFormat, &colorFormat)
+                 && colorFormat != OMX_COLOR_FormatUnused
+                 && colorFormat != format.eColorFormat) {
+@@ -1725,6 +1730,9 @@ status_t OMXCodec::setVideoOutputFormat(
+                 if (format.eColorFormat == colorFormat) {
+                     break;
+                 }
++                if(err == 0x80001005){
++                    err = OMX_ErrorNoMore;
++                }
+             }
+             if (format.eColorFormat != colorFormat) {
+                 CODEC_LOGE("Color format %d is not supported", colorFormat);
+@@ -1755,11 +1763,7 @@ status_t OMXCodec::setVideoOutputFormat(
+ 
+ #if 1
+     // XXX Need a (much) better heuristic to compute input buffer sizes.
+-#ifdef USE_SAMSUNG_COLORFORMAT
+     const size_t X = 64 * 8 * 1024;
+-#else
+-    const size_t X = 64 * 1024;
+-#endif
+     if (def.nBufferSize < X) {
+         def.nBufferSize = X;
+     }
+@@ -2094,9 +2098,9 @@ status_t OMXCodec::allocateBuffersOnPort(OMX_U32 portIndex) {
+             def.nBufferCountActual, def.nBufferSize,
+             portIndex == kPortIndexInput ? "input" : "output");
+ 
+-    if (def.nBufferSize != 0 && def.nBufferCountActual > SIZE_MAX / def.nBufferSize) {
+-        return BAD_VALUE;
+-    }
++    // if (def.nBufferSize != 0 && def.nBufferCountActual > SIZE_MAX / def.nBufferSize) {
++    //     return BAD_VALUE;
++    // }
+ #ifdef MTK_HARDWARE
+     OMX_U32 memoryAlign = 32;
+     size_t totalSize = def.nBufferCountActual *
+@@ -2299,11 +2303,31 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
+             frameHeight,
+             def.format.video.eColorFormat);
+ #else
++    OMX_COLOR_FORMATTYPE HalColorFormat;
++    status_t errss;
++
++    switch (def.format.video.eColorFormat) {
++        case OMX_COLOR_FormatYCbYCr:
++            def.format.video.eColorFormat = OMX_COLOR_FormatYUV420Planar;
++            errss = mOMX->setParameter(mNode, OMX_IndexParamPortDefinition, &def, sizeof(def));
++            if (errss != OK){
++                // nothing here
++            }       
++            HalColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YV12;
++        break;
++        case OMX_COLOR_FormatYUV420Planar:
++            HalColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YV12;
++        break;
++        default:
++            HalColorFormat = def.format.video.eColorFormat;
++        break;
++    }
++
+     err = native_window_set_buffers_geometry(
+             mNativeWindow.get(),
+             def.format.video.nFrameWidth,
+             def.format.video.nFrameHeight,
+-            def.format.video.eColorFormat);
++            HalColorFormat);
+ #endif
+ 
+     if (err != 0) {
+@@ -2358,14 +2382,8 @@ status_t OMXCodec::allocateOutputBuffersFromNativeWindow() {
+     usage |= (GRALLOC_USAGE_SW_WRITE_OFTEN | GRALLOC_USAGE_SW_READ_OFTEN);
+ #endif
+ 
+-#ifdef EXYNOS4_ENHANCEMENTS
+-    err = native_window_set_usage(
+-            mNativeWindow.get(), usage | GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_EXTERNAL_DISP
+-            | GRALLOC_USAGE_HW_FIMC1);
+-#else
+     err = native_window_set_usage(
+             mNativeWindow.get(), usage | GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_EXTERNAL_DISP);
+-#endif
+ 
+     if (err != 0) {
+         ALOGE("native_window_set_usage failed: %s (%d)", strerror(-err), -err);
+@@ -4715,13 +4733,13 @@ status_t OMXCodec::read(
+             mPaused = false;
+         }
+ 
++        drainInputBuffers();
+ 
+         if (mState == EXECUTING) {
+             // Otherwise mState == RECONFIGURING and this code will trigger
+             // after the output port is reenabled.
+             fillOutputBuffers();
+         }
+-        drainInputBuffers();
+     }
+ 
+     if (seeking) {
+@@ -5470,7 +5488,11 @@ status_t QueryCodec(
+                     caps->mColorFormats.push(flexibleEquivalent);
+                 }
+             }
+-            caps->mColorFormats.push(portFormat.eColorFormat);
++            if(portFormat.eColorFormat == OMX_COLOR_FormatYCbYCr) {
++                caps->mColorFormats.push(OMX_COLOR_FormatYUV420Planar);
++            } else {
++                caps->mColorFormats.push(portFormat.eColorFormat);
++            }
+         }
+     }
+ 
+diff --git a/media/libstagefright/colorconversion/ColorConverter.cpp b/media/libstagefright/colorconversion/ColorConverter.cpp
+index 597167f..68434cf 100644
+--- a/media/libstagefright/colorconversion/ColorConverter.cpp
++++ b/media/libstagefright/colorconversion/ColorConverter.cpp
+@@ -44,6 +44,7 @@ bool ColorConverter::isValid() const {
+     switch (mSrcFormat) {
+         case OMX_COLOR_FormatYUV420Planar:
+         case OMX_COLOR_FormatCbYCrY:
++        case OMX_COLOR_FormatYCbYCr:
+         case OMX_QCOM_COLOR_FormatYVU420SemiPlanar:
+         case OMX_COLOR_FormatYUV420SemiPlanar:
+         case OMX_TI_COLOR_FormatYUV420PackedSemiPlanar:
+@@ -110,6 +111,10 @@ status_t ColorConverter::convert(
+             err = convertCbYCrY(src, dst);
+             break;
+ 
++        case OMX_COLOR_FormatYCbYCr:
++            err = convertYCbYCr(src, dst);
++            break;
++
+         case OMX_QCOM_COLOR_FormatYVU420SemiPlanar:
+             err = convertQCOMYUV420SemiPlanar(src, dst);
+             break;
+@@ -196,6 +201,71 @@ status_t ColorConverter::convertCbYCrY(
+     return OK;
+ }
+ 
++status_t ColorConverter::convertYCbYCr(
++        const BitmapParams &src, const BitmapParams &dst) {
++    // XXX Untested
++    ALOGW("PATCH:ColorConverter:convertYCbYCr");
++
++    uint8_t *kAdjustedClip = initClip();
++
++    if (!((src.mCropLeft & 1) == 0
++        && src.cropWidth() == dst.cropWidth()
++        && src.cropHeight() == dst.cropHeight())) {
++        return ERROR_UNSUPPORTED;
++    }
++
++    uint16_t *dst_ptr = (uint16_t *)dst.mBits
++        + dst.mCropTop * dst.mWidth + dst.mCropLeft;
++
++    const uint8_t *src_ptr = (const uint8_t *)src.mBits
++        + (src.mCropTop * dst.mWidth + src.mCropLeft) * 2;
++
++    for (size_t y = 0; y < src.cropHeight(); ++y) {
++        for (size_t x = 0; x < src.cropWidth(); x += 2) {
++            signed y1 = (signed)src_ptr[2 * x ] - 16;
++            signed y2 = (signed)src_ptr[2 * x + 2] - 16;
++            signed u = (signed)src_ptr[2 * x + 1] - 128;  
++            signed v = (signed)src_ptr[2 * x + 3] - 128;
++
++            signed u_b = u * 517;
++            signed u_g = -u * 100;
++            signed v_g = -v * 208;
++            signed v_r = v * 409;
++
++            signed tmp1 = y1 * 298;
++            signed b1 = (tmp1 + u_b) / 256;
++            signed g1 = (tmp1 + v_g + u_g) / 256;
++            signed r1 = (tmp1 + v_r) / 256;
++
++            signed tmp2 = y2 * 298;
++            signed b2 = (tmp2 + u_b) / 256;
++            signed g2 = (tmp2 + v_g + u_g) / 256;
++            signed r2 = (tmp2 + v_r) / 256;
++
++            uint32_t rgb1 =
++                ((kAdjustedClip[r1] >> 3) << 11)
++                | ((kAdjustedClip[g1] >> 2) << 5)
++                | (kAdjustedClip[b1] >> 3);
++
++            uint32_t rgb2 =
++                ((kAdjustedClip[r2] >> 3) << 11)
++                | ((kAdjustedClip[g2] >> 2) << 5)
++                | (kAdjustedClip[b2] >> 3);
++
++            if (x + 1 < src.cropWidth()) {
++                *(uint32_t *)(&dst_ptr[x]) = (rgb2 << 16) | rgb1;
++            } else {
++                dst_ptr[x] = rgb1;
++            }
++        }
++
++        src_ptr += src.mWidth * 2;
++        dst_ptr += dst.mWidth;
++    }
++
++    return OK;
++}
++
+ status_t ColorConverter::convertYUV420Planar(
+         const BitmapParams &src, const BitmapParams &dst) {
+     if (!((src.mCropLeft & 1) == 0
+diff --git a/media/libstagefright/colorconversion/SoftwareRenderer.cpp b/media/libstagefright/colorconversion/SoftwareRenderer.cpp
+index 7cd1bf6..4dfaadb 100644
+--- a/media/libstagefright/colorconversion/SoftwareRenderer.cpp
++++ b/media/libstagefright/colorconversion/SoftwareRenderer.cpp
+@@ -190,7 +190,7 @@ void SoftwareRenderer::resetFormatIfChanged(const sp<AMessage> &format) {
+ }
+ 
+ void SoftwareRenderer::render(
+-        const void *data, size_t size, int64_t timestampNs,
++        const void *data, size_t /* size */, int64_t timestampNs,
+         void* /*platformPrivate*/, const sp<AMessage>& format) {
+     resetFormatIfChanged(format);
+ 
+@@ -219,9 +219,6 @@ void SoftwareRenderer::render(
+                 buf->stride, buf->height,
+                 0, 0, mCropWidth - 1, mCropHeight - 1);
+     } else if (mColorFormat == OMX_COLOR_FormatYUV420Planar) {
+-        if ((size_t)mWidth * mHeight * 3 / 2 > size) {
+-            goto skip_copying;
+-        }
+         const uint8_t *src_y = (const uint8_t *)data;
+         const uint8_t *src_u = (const uint8_t *)data + mWidth * mHeight;
+         const uint8_t *src_v = src_u + (mWidth / 2 * mHeight / 2);
+@@ -229,18 +226,11 @@ void SoftwareRenderer::render(
+         uint8_t *dst_y = (uint8_t *)dst;
+         size_t dst_y_size = buf->stride * buf->height;
+ 
+-#ifdef EXYNOS4_ENHANCEMENTS
+-        size_t dst_c_stride = buf->stride / 2;
+-        size_t dst_c_size = dst_c_stride * buf->height / 2;
+-        size_t dst_c_size_aligned = ALIGN(buf->stride / 2, 16) * buf->height / 2;
+-        uint8_t *dst_v = dst_y + dst_y_size;
++        size_t dst_c_stride = buf->stride / 2;      
++        size_t dst_c_size = dst_c_stride * buf->height / 2;     
++        size_t dst_c_size_aligned = ALIGN(buf->stride / 2, 16) * buf->height / 2;       
++        uint8_t *dst_v = dst_y + dst_y_size;        
+         uint8_t *dst_u = dst_v + dst_c_size_aligned;
+-#else
+-        size_t dst_c_stride = ALIGN(buf->stride / 2, 16);
+-        size_t dst_c_size = dst_c_stride * buf->height / 2;
+-        uint8_t *dst_v = dst_y + dst_y_size;
+-        uint8_t *dst_u = dst_v + dst_c_size;
+-#endif
+ 
+         for (int y = 0; y < mCropHeight; ++y) {
+             memcpy(dst_y, src_y, mCropWidth);
+@@ -258,11 +248,9 @@ void SoftwareRenderer::render(
+             dst_u += dst_c_stride;
+             dst_v += dst_c_stride;
+         }
+-    } else if (mColorFormat == OMX_TI_COLOR_FormatYUV420PackedSemiPlanar
+-            || mColorFormat == OMX_COLOR_FormatYUV420SemiPlanar) {
+-        if ((size_t)mWidth * mHeight * 3 / 2 > size) {
+-            goto skip_copying;
+-        }
++    } else {
++        ALOGW("PATCH:SoftwareRenderer:render: mColorFormat = %i OMX_TI_COLOR_FormatYUV420PackedSemiPlanar", mColorFormat);
++        CHECK_EQ(mColorFormat, OMX_TI_COLOR_FormatYUV420PackedSemiPlanar);
+ 
+         const uint8_t *src_y =
+             (const uint8_t *)data;
+@@ -308,8 +296,6 @@ void SoftwareRenderer::render(
+             dst_u += dst_c_stride;
+             dst_v += dst_c_stride;
+         }
+-    } else {
+-        LOG_ALWAYS_FATAL("bad color format %#x", mColorFormat);
+     }
+ 
+ skip_copying:

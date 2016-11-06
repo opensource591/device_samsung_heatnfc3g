@@ -1,0 +1,31 @@
+diff --git a/include/tinyalsa/asoundlib.h b/include/tinyalsa/asoundlib.h
+index 809e02d..a053140 100644
+--- a/include/tinyalsa/asoundlib.h
++++ b/include/tinyalsa/asoundlib.h
+@@ -152,6 +152,7 @@ struct pcm *pcm_open(unsigned int card, unsigned int device,
+                      unsigned int flags, struct pcm_config *config);
+ int pcm_close(struct pcm *pcm);
+ int pcm_is_ready(struct pcm *pcm);
++int pcm_drain(struct pcm *pcm);
+ 
+ /* Obtain the parameters for a PCM */
+ struct pcm_params *pcm_params_get(unsigned int card, unsigned int device,
+diff --git a/pcm.c b/pcm.c
+index d8af58a..c8ac11c 100644
+--- a/pcm.c
++++ b/pcm.c
+@@ -1037,6 +1037,14 @@ int pcm_stop(struct pcm *pcm)
+     return 0;
+ }
+ 
++int pcm_drain(struct pcm *pcm)
++{
++    if (ioctl(pcm->fd, SNDRV_PCM_IOCTL_DRAIN) < 0)
++        return oops(pcm, errno, "drain failed");
++
++    return 0;
++}
++
+ static inline int pcm_mmap_playback_avail(struct pcm *pcm)
+ {
+     int avail;

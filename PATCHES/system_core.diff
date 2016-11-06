@@ -1,0 +1,73 @@
+diff --git a/init/init.c b/init/init.c
+index 1cce8d8..dd7e4eb 100644
+--- a/init/init.c
++++ b/init/init.c
+@@ -75,7 +75,7 @@ static int   bootchart_count;
+ 
+ static char console[32];
+ static char bootmode[32];
+-static char hardware[32];
++static char hardware[48];
+ static unsigned revision = 0;
+ static char qemu[32];
+ static char battchg_pause[32];
+diff --git a/init/ueventd.c b/init/ueventd.c
+index 1e58052..81644c5 100644
+--- a/init/ueventd.c
++++ b/init/ueventd.c
+@@ -57,7 +57,7 @@ int ueventd_main(int argc, char **argv)
+ {
+     struct pollfd ufd;
+     int nr;
+-    char tmp[32];
++    char tmp[64];
+ 
+     /*
+      * init sets the umask to 077 for forked processes. We need to
+diff --git a/libnetutils/ifc_utils.c b/libnetutils/ifc_utils.c
+index cb3722d..695b74f 100644
+--- a/libnetutils/ifc_utils.c
++++ b/libnetutils/ifc_utils.c
+@@ -647,6 +647,42 @@ int ifc_reset_connections(const char *ifname, const int reset_mask)
+ #endif
+ }
+ 
++/* bcm stuff */
++/* Added both functions as both are needed for Broadcom RILD */
++int ifc_get_mtu(const char *name, int *mtuSz)
++{
++    struct ifreq ifr;
++    ifc_init_ifr(name, &ifr);
++
++    if (mtuSz != NULL) {
++        if(ioctl(ifc_ctl_sock, SIOCGIFMTU, &ifr) < 0) {
++            *mtuSz = 0;
++            return -2;
++        } else {
++            *mtuSz = ifr.ifr_mtu;
++            return 0;
++        }
++    }
++
++    return -1;
++}
++
++// Required for Broadcom RILD
++int ifc_set_mtu(const char *name, int mtuSz)
++{
++    struct ifreq ifr;
++    int ret;
++    ifc_init_ifr(name, &ifr);
++    ifr.ifr_mtu = mtuSz;
++
++    ret = ioctl(ifc_ctl_sock, SIOCSIFMTU, &ifr);
++    if (ret < 0) {
++        printerr("ifc_set_mtu: SIOCSIFMTU failed: %d\n", ret);
++    }
++
++    return ret;
++}
++
+ /*
+  * Removes the default route for the named interface.
+  */

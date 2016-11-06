@@ -1,0 +1,63 @@
+diff --git a/res/values/strings.xml b/res/values/strings.xml
+index 6aa2eec..a35cb59 100644
+--- a/res/values/strings.xml
++++ b/res/values/strings.xml
+@@ -609,12 +609,14 @@
+     </string-array>
+ 
+     <string-array name="enabled_networks_except_lte_choices" translatable="false">
+-        <item>@string/network_3G</item>
+-        <item>@string/network_2G</item>
++        <item>@string/preferred_network_mode_wcdma_only_choice</item>
++        <item>@string/preferred_network_mode_gsm_only_choice</item>
++		<item>@string/preferred_network_mode_gsm_wcdma_preferred_choice</item>
+     </string-array>
+     <string-array name="enabled_networks_except_lte_values" translatable="false">
+-        <item>"0"</item>
++        <item>"2"</item>
+         <item>"1"</item>
++		<item>"0"</item>
+     </string-array>
+ 
+     <string-array name="enabled_networks_except_gsm_lte_choices" translatable="false">
+diff --git a/src/com/android/phone/CallFeaturesSetting.java b/src/com/android/phone/CallFeaturesSetting.java
+index 00e71af..05da962 100644
+--- a/src/com/android/phone/CallFeaturesSetting.java
++++ b/src/com/android/phone/CallFeaturesSetting.java
+@@ -2351,10 +2351,13 @@ public class CallFeaturesSetting extends PreferenceActivity
+      * This is useful for implementing "HomeAsUp" capability for second-level Settings.
+      */
+     public static void goUpToTopLevelSetting(Activity activity) {
+-        Intent intent = new Intent(activity, CallFeaturesSetting.class);
+-        intent.setAction(Intent.ACTION_MAIN);
+-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+-        activity.startActivity(intent);
++        // HACK: See MSimMobileNetworkSubSettings#onOptionsItemSelected
++        if (!PhoneUtils.isMultiSimEnabled()) {
++		    Intent intent = new Intent(activity, CallFeaturesSetting.class);
++		    intent.setAction(Intent.ACTION_MAIN);
++		    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
++		    activity.startActivity(intent);
++		}
+         activity.finish();
+     }
+ }
+diff --git a/src/com/android/phone/MobileNetworkSettings.java b/src/com/android/phone/MobileNetworkSettings.java
+index ff68994..5b900b2 100644
+--- a/src/com/android/phone/MobileNetworkSettings.java
++++ b/src/com/android/phone/MobileNetworkSettings.java
+@@ -523,11 +523,11 @@ public class MobileNetworkSettings extends PreferenceActivity
+ 
+         mEnabledNetworksSummaries = new SparseIntArray();
+         mEnabledNetworksSummaries.append(Phone.NT_MODE_WCDMA_PREF,
+-                R.string.network_wcdma_pref);
++                R.string.preferred_network_mode_gsm_wcdma_preferred_choice);
+         mEnabledNetworksSummaries.append(Phone.NT_MODE_GSM_ONLY,
+-                R.string.network_gsm_only);
++                R.string.preferred_network_mode_gsm_only_choice);
+         mEnabledNetworksSummaries.append(Phone.NT_MODE_WCDMA_ONLY,
+-                R.string.network_wcdma_only);
++                 R.string.preferred_network_mode_wcdma_only_choice);
+         mEnabledNetworksSummaries.append(Phone.NT_MODE_GSM_UMTS,
+                R.string.network_gsm_umts);
+         mEnabledNetworksSummaries.append(Phone.NT_MODE_CDMA,

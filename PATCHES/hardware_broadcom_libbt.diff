@@ -1,0 +1,34 @@
+diff --git a/src/userial_vendor.c b/src/userial_vendor.c
+index 949ec4b..29e9a29 100644
+--- a/src/userial_vendor.c
++++ b/src/userial_vendor.c
+@@ -195,6 +195,10 @@ int userial_vendor_open(tUSERIAL_CFG *p_cfg)
+     uint8_t data_bits;
+     uint16_t parity;
+     uint8_t stop_bits;
++    
++#if (BT_WAKE_VIA_USERIAL_IOCTL==TRUE)
++    int ldisc;
++#endif
+ 
+     vnd_userial.fd = -1;
+ 
+@@ -265,6 +269,13 @@ int userial_vendor_open(tUSERIAL_CFG *p_cfg)
+     tcsetattr(vnd_userial.fd, TCSANOW, &vnd_userial.termios);
+ 
+ #if (BT_WAKE_VIA_USERIAL_IOCTL==TRUE)
++    // TODO: check for breakage on tuna (Galaxy Nexus). It defines this,
++    //       but does not contain the kernel code to support it.
++
++    // Switch to N_BRCM_HCI line disclipline for ioctl to work
++    ldisc = 25; // N_BRCM_HCI
++    ioctl(vnd_userial.fd, TIOCSETD, &ldisc);
++
+     userial_ioctl_init_bt_wake(vnd_userial.fd);
+ #endif
+ 
+@@ -392,4 +403,3 @@ int userial_set_force_use_2_stop_bits(char *p_conf_name, char *p_conf_value, int
+         vnd_userial_force_2stopbits = FALSE;
+     return 0;
+ }
+-

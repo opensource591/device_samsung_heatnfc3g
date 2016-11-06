@@ -1,0 +1,26 @@
+diff --git a/domain.te b/domain.te
+index bfb5f05..73c31db 100644
+--- a/domain.te
++++ b/domain.te
+@@ -220,7 +220,7 @@ neverallow { domain -system_server -recovery } security_file:lnk_file { create s
+ # init starts in kernel domain and switches to init domain via setcon in
+ # the init.rc, so the setenforce occurs while still in kernel. After
+ # switching domains, there is never any need to setenforce again by init.
+-neverallow domain kernel:security setenforce;
++#neverallow domain kernel:security setenforce;
+ neverallow { domain -kernel } kernel:security setcheckreqprot;
+ 
+ # No booleans in AOSP policy, so no need to ever set them.
+diff --git a/init.te b/init.te
+index 5275f4f..a7d1c19 100644
+--- a/init.te
++++ b/init.te
+@@ -108,6 +108,8 @@ allow init self:udp_socket { create ioctl };
+ # set scheduling parameters for a kernel domain task.
+ allow init kernel:process setsched;
+ 
++allow init kernel:security setenforce;
++
+ # Allow init to read the context on userdirs (but not their contents)
+ # We need this before relabeling them coming from 4.4
+ allow init app_data_file:{ lnk_file dir } { getattr relabelfrom };
