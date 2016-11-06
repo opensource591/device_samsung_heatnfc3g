@@ -4,4 +4,4 @@ allow init radio_device:blk_file setattr;
 
 # insmod
 allow init self:capability sys_module; # TODO: want sys_ptrace too
-allow init kernel:security setenforce;
+#allow init kernel:security setenforce;

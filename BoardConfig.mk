@@ -30,7 +30,7 @@ TARGET_INIT_VENDOR_LIB := libinit_hawaii_ss
 BOARD_KERNEL_BASE := 0x81e00000
 BOARD_KERNEL_PAGESIZE := 4096
 TARGET_KERNEL_CONFIG := bcm21664_hawaii_ss_heatnfc3g_rev00_defconfig
-TARGET_KERNEL_SOURCE := kernel/samsung/hawaii
+TARGET_KERNEL_SOURCE := kernel/samsung/heatnfc3g
 #TARGET_KERNEL_CUSTOM_TOOLCHAIN := arm-eabi-4.6
 #KERNEL_TOOLCHAIN_PREFIX := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin/arm-eabi-
 BOARD_MKBOOTIMG_ARGS := --second $(OUT)/obj/KERNEL_OBJ/arch/arm/boot/dts/hawaii_ss_heatnfc3g_rev00.dtb
@@ -126,7 +126,7 @@ BOARD_RIL_CLASS := ../../../device/samsung/heatnfc3g/ril/
 
 # Recovery
 TARGET_RECOVERY_INITRC := device/samsung/heatnfc3g/ramdisk/init.recovery.rc
-TARGET_RECOVERY_FSTAB := device/samsung/heatnfc3g/ramdisk/fstab.hawaii_ss_heatnfc3g
+TARGET_RECOVERY_FSTAB := device/samsung/heatnfc3g/ramdisk/recovery.fstab
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/android0/f_mass_storage/lun%d/file"
 BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_HAS_LARGE_FILESYSTEM := true
@@ -138,7 +138,7 @@ BOARD_USES_MMCUTILS := false
 BOARD_RECOVERY_ALWAYS_WIPES := false
 BOARD_SUPPRESS_EMMC_WIPE := true
 TARGET_RECOVERY_DENSITY := hdpi
-
+TW_THEME := portrait_hdpi
 # CMHW
 BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/ device/samsung/heatnfc3g/cmhw/
 BOARD_USE_SAMSUNG_COLORFORMAT := false
