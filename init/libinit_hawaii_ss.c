@@ -53,8 +53,8 @@ void vendor_load_properties() {
 			// Treat the device as a single-SIM phone, when there is 1 or none SIM cards inserted
 			property_set("persist.dsds.enabled", "false");
 			property_set("persist.radio.multisim.config", "none");
-			property_set("ro.product.model", "SM-G313HN");
-			property_set("ro.product.device", "vivaltonfc3g");
+			property_set("ro.product.model", "SM-G310HN");
+			property_set("ro.product.device", "heatnfc3g");
 		} else {
 			// Treat the device as a dual-SIM phone, when there is 2 SIM cards inserted
 			property_set("persist.dsds.enabled", "true");

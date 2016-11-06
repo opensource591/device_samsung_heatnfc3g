@@ -4,26 +4,26 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 $(call inherit-product, device/common/gps/gps_us_supl.mk)
 
 # Vendor blobs
-$(call inherit-product-if-exists, vendor/samsung/vivaltods5m/vivaltods5m-vendor.mk)
+$(call inherit-product-if-exists, vendor/samsung/heatnfc3g/heatnfc3g-vendor.mk)
 
 # Use high-density artwork where available
 PRODUCT_LOCALES += hdpi
 PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := hdpi
 
-DEVICE_PACKAGE_OVERLAYS += device/samsung/vivaltods5m/overlay
+DEVICE_PACKAGE_OVERLAYS += device/samsung/heatnfc3g/overlay
 
 # Init files
 PRODUCT_COPY_FILES += \
-	$(LOCAL_PATH)/ramdisk/fstab.hawaii_ss_vivaltods5m:root/fstab.hawaii_ss_vivaltods5m \
-	$(LOCAL_PATH)/ramdisk/init.hawaii_ss_vivaltods5m.rc:root/init.hawaii_ss_vivaltods5m.rc \
-	$(LOCAL_PATH)/ramdisk/init.hawaii_ss_vivaltods5m_base.rc:root/init.hawaii_ss_vivaltods5m_base.rc \
+	$(LOCAL_PATH)/ramdisk/fstab.hawaii_ss_heatnfc3g:root/fstab.hawaii_ss_heatnfc3g \
+	$(LOCAL_PATH)/ramdisk/init.hawaii_ss_heatnfc3g.rc:root/init.hawaii_ss_heatnfc3g.rc \
+	$(LOCAL_PATH)/ramdisk/init.hawaii_ss_heatnfc3g_base.rc:root/init.hawaii_ss_heatnfc3g_base.rc \
 	$(LOCAL_PATH)/ramdisk/init.log.rc:root/init.log.rc \
 	$(LOCAL_PATH)/ramdisk/init.rc:root/init.rc \
 	$(LOCAL_PATH)/ramdisk/init.usb_hawaii_ss.rc:root/init.usb_hawaii_ss.rc \
 	$(LOCAL_PATH)/ramdisk/init.wifi.rc:root/init.wifi.rc \
 	$(LOCAL_PATH)/ramdisk/lpm.rc:root/lpm.rc \
-	$(LOCAL_PATH)/ramdisk/ueventd.hawaii_ss_vivaltods5m.rc:root/ueventd.hawaii_ss_vivaltods5m.rc # no need to cut off since init is patched.
+	$(LOCAL_PATH)/ramdisk/ueventd.hawaii_ss_heatnfc3g.rc:root/ueventd.hawaii_ss_heatnfc3g.rc # no need to cut off since init is patched.
 	
 PRODUCT_COPY_FILES += \
 	$(LOCAL_PATH)/configs/audio_policy.conf:system/etc/audio_policy.conf \
@@ -155,6 +155,6 @@ else
 endif
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
-PRODUCT_NAME := full_vivaltods5m
-PRODUCT_DEVICE := vivaltods5m
-PRODUCT_MODEL := CM on Vivalto
+PRODUCT_NAME := full_heatnfc3g
+PRODUCT_DEVICE := heatnfc3g
+PRODUCT_MODEL := SM-G310HN
