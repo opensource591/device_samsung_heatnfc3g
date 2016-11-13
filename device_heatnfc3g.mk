@@ -4,7 +4,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 $(call inherit-product, device/common/gps/gps_us_supl.mk)
 
 # Vendor blobs
-$(call inherit-product-if-exists, vendor/samsung/heatnfc3g/heatnfc3g-vendor.mk)
+$(call inherit-product, vendor/samsung/heatnfc3g/heatnfc3g-vendor.mk)
 
 # Use high-density artwork where available
 PRODUCT_LOCALES += hdpi
@@ -12,6 +12,9 @@ PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := hdpi
 
 DEVICE_PACKAGE_OVERLAYS += device/samsung/heatnfc3g/overlay
+
+PRODUCT_COPY_FILES += \
+    device/samsung/heatnfc3g/kernel:kernel
 
 # Init files
 PRODUCT_COPY_FILES += \
@@ -44,7 +47,6 @@ PRODUCT_COPY_FILES += \
 # Bluetooth config
 PRODUCT_COPY_FILES += \
 	$(LOCAL_PATH)/configs/bluetooth/bt_did.conf:system/etc/bluetooth/bt_did.conf \
-	$(LOCAL_PATH)/configs/bluetooth/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf
 
 # WiFi config
 PRODUCT_COPY_FILES += \
@@ -125,6 +127,22 @@ PRODUCT_COPY_FILES += \
 	frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
 	frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
 	frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml
+
+###########################################################
+### NFC
+###########################################################
+
+PRODUCT_COPY_FILES += \
+	#$(LOCAL_PATH)/configs/nfc/libnfc-sec-hal.conf:system/etc/libnfc-sec-hal.conf \
+	$(LOCAL_PATH)/configs/nfc/libnfc-sec.conf:system/etc/libnfc-brcm.conf \
+	$(LOCAL_PATH)/configs/nfc/nfcee_access.xml:system/etc/nfcee_access.xml
+
+PRODUCT_PACKAGES += \
+	com.android.nfc_extras \
+	libnfc_nci_jni \
+	libnfc-nci \
+	NfcNci \
+	Tag
 
 # These are the hardware-specific settings that are stored in system properties.
 # Note that the only such settings should be the ones that are too low-level to

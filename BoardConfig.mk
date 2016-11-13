@@ -27,13 +27,18 @@ TARGET_OTA_ASSERT_DEVICE := heatnfc3g,SM-G310HN,hawaii
 TARGET_INIT_VENDOR_LIB := libinit_hawaii_ss
 
 # Kernel
+BOARD_KERNEL_CMDLINE :=  androidboot.selinux=disable selinux=0
 BOARD_KERNEL_BASE := 0x81e00000
 BOARD_KERNEL_PAGESIZE := 4096
-TARGET_KERNEL_CONFIG := bcm21664_hawaii_ss_heatnfc3g_rev00_defconfig
-TARGET_KERNEL_SOURCE := kernel/samsung/hawaii
+#TARGET_KERNEL_CONFIG := bcm21664_hawaii_ss_heatnfc3g_rev00_defconfig
+#TARGET_KERNEL_SOURCE := kernel/samsung/hawaii
 #TARGET_KERNEL_CUSTOM_TOOLCHAIN := arm-eabi-4.6
 #KERNEL_TOOLCHAIN_PREFIX := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin/arm-eabi-
-BOARD_MKBOOTIMG_ARGS := --second $(OUT)/obj/KERNEL_OBJ/arch/arm/boot/dts/hawaii_ss_heatnfc3g_rev00.dtb
+TARGET_PREBUILT_KERNEL := device/samsung/heatnfc3g/kernel
+BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01000000 --kernel_offset 0x00008000 --second device/samsung/heatnfc3g/boot.img-second --second_offset 0x00f00000 --tags_offset 0x00000100
+
+# Use prebuilt webviewchromium to cut down build time
+#PRODUCT_PREBUILT_WEBVIEWCHROMIUM := yes
 
 # PARTITION SIZE
 BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608
@@ -47,6 +52,7 @@ BOARD_FLASH_BLOCK_SIZE := 262144 #BOARD_KERNEL_PAGESIZE * 64
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
+BOARD_HAVE_SAMSUNG_BLUETOOTH := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/heatnfc3g/bluetooth
 BOARD_BLUEDROID_VENDOR_CONF := device/samsung/heatnfc3g/bluetooth/libbt_vndcfg.txt
 
@@ -145,6 +151,10 @@ BOARD_USE_SAMSUNG_COLORFORMAT := false
 
 # GPS
 TARGET_SPECIFIC_HEADER_PATH := device/samsung/heatnfc3g/include
+
+### NFC
+BOARD_NFC_CHIPSET := pn547
+BOARD_NFC_HAL_SUFFIX := $(TARGET_BOOTLOADER_BOARD_NAME)
 
 # Compat
 TARGET_USES_LOGD := false
