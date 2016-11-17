@@ -3,52 +3,52 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 # The gps config appropriate for this device
 $(call inherit-product, device/common/gps/gps_us_supl.mk)
 
-$(call inherit-product-if-exists, vendor/samsung/vivaltods5m/vivaltods5m-vendor.mk)
+$(call inherit-product-if-exists, vendor/samsung/heatnfc3g/heatnfc3g-vendor.mk)
 
 # Use high-density artwork where available
 PRODUCT_LOCALES += hdpi
 PRODUCT_AAPT_CONFIG := normal
 PRODUCT_AAPT_PREF_CONFIG := hdpi
 
-DEVICE_PACKAGE_OVERLAYS += device/samsung/vivaltods5m/overlay
+DEVICE_PACKAGE_OVERLAYS += device/samsung/heatnfc3g/overlay
 
 # Init files
 PRODUCT_COPY_FILES += \
-	device/samsung/vivaltods5m/ramdisk/fstab.hawaii_ss_vivaltods5m:root/fstab.hawaii_ss_vivaltods5m \
-	device/samsung/vivaltods5m/ramdisk/init.hawaii_ss_vivaltods5m.rc:root/init.hawaii_ss_vivaltods5m.rc \
-	device/samsung/vivaltods5m/ramdisk/init.hawaii_ss_vivaltods5m_base.rc:root/init.hawaii_ss_vivaltods5m_base.rc \
-	device/samsung/vivaltods5m/ramdisk/init.log.rc:root/init.log.rc \
-	device/samsung/vivaltods5m/ramdisk/init.rc:root/init.rc \
-	device/samsung/vivaltods5m/ramdisk/init.usb_hawaii_ss.rc:root/init.usb_hawaii_ss.rc \
-	device/samsung/vivaltods5m/ramdisk/init.wifi.rc:root/init.wifi.rc \
-	device/samsung/vivaltods5m/ramdisk/lpm.rc:root/lpm.rc \
-	device/samsung/vivaltods5m/ramdisk/ueventd.hawaii_ss_vivaltods5m.rc:root/ueventd.hawaii_ss_vivaltods5m.rc # no need to cut off since init is patched.
+	device/samsung/heatnfc3g/ramdisk/fstab.hawaii_ss_heatnfc3g:root/fstab.hawaii_ss_heatnfc3g \
+	device/samsung/heatnfc3g/ramdisk/init.hawaii_ss_heatnfc3g.rc:root/init.hawaii_ss_heatnfc3g.rc \
+	device/samsung/heatnfc3g/ramdisk/init.hawaii_ss_heatnfc3g_base.rc:root/init.hawaii_ss_heatnfc3g_base.rc \
+	device/samsung/heatnfc3g/ramdisk/init.log.rc:root/init.log.rc \
+	device/samsung/heatnfc3g/ramdisk/init.rc:root/init.rc \
+	device/samsung/heatnfc3g/ramdisk/init.usb_hawaii_ss.rc:root/init.usb_hawaii_ss.rc \
+	device/samsung/heatnfc3g/ramdisk/init.wifi.rc:root/init.wifi.rc \
+	device/samsung/heatnfc3g/ramdisk/lpm.rc:root/lpm.rc \
+	device/samsung/heatnfc3g/ramdisk/ueventd.hawaii_ss_heatnfc3g.rc:root/ueventd.hawaii_ss_heatnfc3g.rc # no need to cut off since init is patched.
 	
 PRODUCT_COPY_FILES += \
-	device/samsung/vivaltods5m/configs/media_profiles.xml:system/etc/media_profiles.xml \
-	device/samsung/vivaltods5m/configs/audio_policy.conf:system/etc/audio_policy.conf \
+	device/samsung/heatnfc3g/configs/media_profiles.xml:system/etc/media_profiles.xml \
+	device/samsung/heatnfc3g/configs/audio_policy.conf:system/etc/audio_policy.conf \
 	frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
 	frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml \
 	frameworks/av/media/libstagefright/data/media_codecs_google_video_le.xml:system/etc/media_codecs_google_video_le.xml \
- 	device/samsung/vivaltods5m/configs/media_codecs.xml:system/etc/media_codecs.xml 
+ 	device/samsung/heatnfc3g/configs/media_codecs.xml:system/etc/media_codecs.xml 
 
 # Prebuilt kl keymaps
 PRODUCT_COPY_FILES += \
-	device/samsung/vivaltods5m/keylayouts/bcm_headset.kl:system/usr/keylayout/bcm_headset.kl \
-	device/samsung/vivaltods5m/keylayouts/bcm_keypad_v2.kl:system/usr/keylayout/bcm_keypad_v2.kl \
-	device/samsung/vivaltods5m/keylayouts/bcmpmu_on.kl:system/usr/keylayout/bcmpmu_on.kl \
-	device/samsung/vivaltods5m/keylayouts/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
-	device/samsung/vivaltods5m/keylayouts/ist30xx_ts_input.kl:system/usr/keylayout/ist30xx_ts_input.kl
+	device/samsung/heatnfc3g/keylayouts/bcm_headset.kl:system/usr/keylayout/bcm_headset.kl \
+	device/samsung/heatnfc3g/keylayouts/bcm_keypad_v2.kl:system/usr/keylayout/bcm_keypad_v2.kl \
+	device/samsung/heatnfc3g/keylayouts/bcmpmu_on.kl:system/usr/keylayout/bcmpmu_on.kl \
+	device/samsung/heatnfc3g/keylayouts/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
+	device/samsung/heatnfc3g/keylayouts/ist30xx_ts_input.kl:system/usr/keylayout/ist30xx_ts_input.kl
 
 # Bluetooth config
 PRODUCT_COPY_FILES += \
-	device/samsung/vivaltods5m/configs/bluetooth/bt_did.conf:system/etc/bluetooth/bt_did.conf \
-	device/samsung/vivaltods5m/configs/bluetooth/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf
+	device/samsung/heatnfc3g/configs/bluetooth/bt_did.conf:system/etc/bluetooth/bt_did.conf \
+	device/samsung/heatnfc3g/configs/bluetooth/bt_vendor.conf:system/etc/bluetooth/bt_vendor.conf
 
 # WiFi config
 PRODUCT_COPY_FILES += \
-	device/samsung/vivaltods5m/configs/wifi/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf \
-	device/samsung/vivaltods5m/configs/wifi/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf
+	device/samsung/heatnfc3g/configs/wifi/p2p_supplicant_overlay.conf:system/etc/wifi/p2p_supplicant_overlay.conf \
+	device/samsung/heatnfc3g/configs/wifi/wpa_supplicant_overlay.conf:system/etc/wifi/wpa_supplicant_overlay.conf
 
 # Charger
 PRODUCT_PACKAGES += \
@@ -148,6 +148,6 @@ else
 endif
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
-PRODUCT_NAME := full_vivaltods5m
-PRODUCT_DEVICE := vivaltods5m
-PRODUCT_MODEL := SM-G313HU
+PRODUCT_NAME := full_heatnfc3g
+PRODUCT_DEVICE := heatnfc3g
+PRODUCT_MODEL := SM-G310HN

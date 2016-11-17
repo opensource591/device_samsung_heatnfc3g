@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ifeq ($(TARGET_DEVICE),vivaltods5m)
+ifeq ($(TARGET_DEVICE),heatnfc3g)
 ifeq ($(TARGET_BOARD_PLATFORM),hawaii)
 
 LOCAL_PATH := $(call my-dir)

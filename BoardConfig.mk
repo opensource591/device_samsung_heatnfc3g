@@ -1,7 +1,7 @@
 USE_CAMERA_STUB := true
 
 # inherit from the proprietary version
--include vendor/samsung/vivaltods5m/BoardConfigVendor.mk
+-include vendor/samsung/heatnfc3g/BoardConfigVendor.mk
 
 # Platform
 TARGET_ARCH := arm
@@ -19,16 +19,14 @@ TARGET_GLOBAL_CPPFLAGS += -mtune=cortex-a9 -mfpu=neon -mfloat-abi=softfp
 BOARD_VENDOR := samsung
 
 # Assert
-TARGET_OTA_ASSERT_DEVICE := vivaltods5m,G313HU,GT-G313HU,hawaii
+TARGET_OTA_ASSERT_DEVICE := heatnfc3g,G313HU,GT-G313HU,hawaii
 
 # Kernel
+BOARD_KERNEL_CMDLINE :=  androidboot.selinux=disable selinux=0
 BOARD_KERNEL_BASE := 0x81e00000
 BOARD_KERNEL_PAGESIZE := 4096
-TARGET_KERNEL_CONFIG := bcm21664_hawaii_ss_vivaltods5m_rev00_cm_defconfig
-TARGET_KERNEL_SOURCE := kernel/samsung/hawaii
-#TARGET_KERNEL_CUSTOM_TOOLCHAIN := arm-eabi-4.6
-KERNEL_TOOLCHAIN_PREFIX := $(ANDROID_BUILD_TOP)/prebuilts/gcc/linux-x86/arm/arm-eabi-4.8/bin/arm-eabi-
-BOARD_MKBOOTIMG_ARGS := --second $(OUT)/obj/KERNEL_OBJ/arch/arm/boot/dts/hawaii_ss_vivaltods5m_rev00.dtb
+TARGET_PREBUILT_KERNEL := device/samsung/heatnfc3g/kernel
+BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01000000 --kernel_offset 0x00008000 --second device/samsung/heatnfc3g/boot.img-second --second_offset 0x00f00000 --tags_offset 0x00000100
 
 # PARTITION SIZE
 BOARD_BOOTIMAGE_PARTITION_SIZE := 8388608
@@ -42,8 +40,8 @@ BOARD_FLASH_BLOCK_SIZE := 262144 #BOARD_KERNEL_PAGESIZE * 64
 # Bluetooth
 BOARD_HAVE_BLUETOOTH := true
 BOARD_HAVE_BLUETOOTH_BCM := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/vivaltods5m/bluetooth
-BOARD_BLUEDROID_VENDOR_CONF := device/samsung/vivaltods5m/bluetooth/libbt_vndcfg_g313hu.txt
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/samsung/heatnfc3g/bluetooth
+BOARD_BLUEDROID_VENDOR_CONF := device/samsung/heatnfc3g/bluetooth/libbt_vndcfg.txt
 
 # Connectivity - Wi-Fi
 BOARD_WLAN_DEVICE                := bcmdhd
@@ -67,7 +65,7 @@ TARGET_SCREEN_HEIGHT := 800
 TARGET_SCREEN_WIDTH := 480
 
 # Hardware rendering
-BOARD_EGL_CFG := device/samsung/vivaltods5m/configs/egl.cfg
+BOARD_EGL_CFG := device/samsung/heatnfc3g/configs/egl.cfg
 USE_OPENGL_RENDERER := true
 BOARD_USE_MHEAP_SCREENSHOT := true
 BOARD_EGL_WORKAROUND_BUG_10194508 := true
@@ -109,7 +107,7 @@ CHARGING_ENABLED_PATH := "/sys/class/power_supply/battery/batt_lp_charging"
 BACKLIGHT_PATH := "/sys/class/backlight/panel/brightness"
 
 # healthd
-BOARD_HAL_STATIC_LIBRARIES := libhealthd-vivaltods5m.hawaii
+BOARD_HAL_STATIC_LIBRARIES := libhealthd-heatnfc3g.hawaii
 
 # Use the CM PowerHAL
 TARGET_USES_CM_POWERHAL := true
@@ -117,11 +115,11 @@ CM_POWERHAL_EXTENSION := hawaii
 TARGET_POWERHAL_VARIANT := cm
 
 # RIL
-BOARD_RIL_CLASS := ../../../device/samsung/vivaltods5m/ril/
+BOARD_RIL_CLASS := ../../../device/samsung/heatnfc3g/ril/
 
 # Recovery
-TARGET_RECOVERY_INITRC := device/samsung/vivaltods5m/ramdisk/init.recovery.rc
-TARGET_RECOVERY_FSTAB := device/samsung/vivaltods5m/ramdisk/fstab.hawaii_ss_vivaltods5m
+TARGET_RECOVERY_INITRC := device/samsung/heatnfc3g/ramdisk/init.recovery.rc
+TARGET_RECOVERY_FSTAB := device/samsung/heatnfc3g/ramdisk/fstab.hawaii_ss_heatnfc3g
 TARGET_USE_CUSTOM_LUN_FILE_PATH := "/sys/class/android_usb/android0/f_mass_storage/lun%d/file"
 BOARD_HAS_NO_SELECT_BUTTON := true
 BOARD_HAS_LARGE_FILESYSTEM := true
@@ -135,10 +133,10 @@ BOARD_SUPPRESS_EMMC_WIPE := true
 TARGET_RECOVERY_DENSITY := hdpi
 
 # CMHW
-BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/ device/samsung/vivaltods5m/cmhw/
+BOARD_HARDWARE_CLASS := hardware/samsung/cmhw/ device/samsung/heatnfc3g/cmhw/
 
 # GPS
-TARGET_SPECIFIC_HEADER_PATH := device/samsung/vivaltods5m/include
+TARGET_SPECIFIC_HEADER_PATH := device/samsung/heatnfc3g/include
 
 # Compat
 TARGET_USES_LOGD := false
@@ -147,7 +145,7 @@ TARGET_USES_LOGD := false
 MALLOC_IMPL := dlmalloc
 
 BOARD_SEPOLICY_DIRS += \
-    device/samsung/vivaltods5m/sepolicy
+    device/samsung/heatnfc3g/sepolicy
 
 BOARD_SEPOLICY_UNION += \
     file_contexts \

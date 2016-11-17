@@ -17,6 +17,6 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES := healthd-hawaii.cpp
-LOCAL_MODULE := libhealthd-vivaltods5m.hawaii
+LOCAL_MODULE := libhealthd-heatnfc3g.hawaii
 LOCAL_C_INCLUDES := system/core/healthd
 include $(BUILD_STATIC_LIBRARY)
