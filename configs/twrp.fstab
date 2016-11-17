@@ -1,0 +1,8 @@
+# mount point   fstype          device
+/boot            emmc       /dev/block/platform/sdhci.1/by-name/KERNEL
+/system          ext4       /dev/block/platform/sdhci.1/by-name/system
+/data            ext4       /dev/block/platform/sdhci.1/by-name/userdata
+/cache           ext4       /dev/block/platform/sdhci.1/by-name/CSC
+/recovery        emmc       /dev/block/platform/sdhci.1/by-name/RECOVERY
+/efs             ext4       /dev/block/platform/sdhci.1/by-name/efs flags=display="EFS";backup=1
+/external_sd     vfat       /devices/block/mmcblk1p1 flags=display="External SD";storage;backup=1;wipeingui;removable
